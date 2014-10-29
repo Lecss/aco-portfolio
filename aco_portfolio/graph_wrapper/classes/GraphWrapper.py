@@ -1,4 +1,6 @@
 import networkx as nx
+from networkx.readwrite import json_graph
+import json
 
 class GraphWrapper():
 
@@ -11,6 +13,10 @@ class GraphWrapper():
 
 	def get_graph(self):
 		return self.G
+
+	def get_serialized_graph(self):
+		data = json_graph.node_link_data(self.G)
+		return json.dumps(data)
 
 	def create_graph(self,drugs):
 		self.G = nx.Graph()
