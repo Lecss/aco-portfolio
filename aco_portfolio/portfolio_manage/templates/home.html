@@ -5,10 +5,14 @@
 </head>
 
 <body>
-	home
-
+	<h2>Portfolio Name: {{portfolio.0.name}} </h2>
+	{{drugs}}
 	<form method="post" action="solution">
-		<input type="text" name="drug_list" value=""/>
+		<input type="hidden" name="drug_list" value=""/>
+		{%for drug in drugs %}
+		<input type="text" name="{{drug.name}}" value="Drug {{drug.name}}"/>
+
+		{% endfor %}
 		<input type="submit" />
 		{% csrf_token %}
 	</form>

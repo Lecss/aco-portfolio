@@ -1,0 +1,59 @@
+[
+  {
+    "model": "portfolio_manage.portfolio",
+    "pk": 1,
+    "fields": {
+      "name": "Leopard",
+      "user": 1,
+      "budget": 150000
+    }
+  },
+  {
+    "model": "portfolio_manage.drug",
+    "pk": 1,
+    "fields": {
+      "name": "A",
+      "portfolio": 1
+    }
+  },
+  {
+    "model": "portfolio_manage.drug",
+    "pk": 2,
+    "fields": {
+      "name": "B",
+      "portfolio": 1
+    }
+  },
+  {
+    "model": "portfolio_manage.drug",
+    "pk": 3,
+    "fields": {
+      "name": "C",
+      "portfolio": 1
+    }
+  },
+  {
+    "model": "portfolio_manage.stage",
+    "pk": 1,
+    "fields": {
+      "name": "One",
+      "drug": 1
+    }
+  },
+  {
+    "model": "portfolio_manage.stage",
+    "pk": 2,
+    "fields": {
+      "name": "One",
+      "drug": 2
+    }
+  },
+  {
+    "model": "portfolio_manage.stage",
+    "pk": 3,
+    "fields": {
+      "name": "One",
+      "drug": 3
+    }
+  }
+]
