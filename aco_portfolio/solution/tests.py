@@ -42,6 +42,6 @@ class GraphWrapperTest(unittest.TestCase):
 
 		self.assertNotEqual(g, None)
 		self.assertNotEqual(g, "")
-
+		
 		count = len(json.loads(g)['nodes'])
 		self.assertEqual(count, len(self.drugs))
