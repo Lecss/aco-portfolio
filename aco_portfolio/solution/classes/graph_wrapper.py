@@ -8,8 +8,7 @@ class GraphWrapper():
 		self.food = None
 		self.nest = None
 		self.drugs = drugs
-		self.graph = self.create_graph(drugs)
-
+		self.G = self.create_graph(drugs)
 
 	def get_graph(self):
 		return self.G
@@ -19,5 +18,6 @@ class GraphWrapper():
 		return json.dumps(data)
 
 	def create_graph(self,drugs):
-		self.G = nx.Graph()
-		self.G.add_nodes_from(drugs)
+		g = nx.Graph()
+		g.add_nodes_from(drugs)
+		return g

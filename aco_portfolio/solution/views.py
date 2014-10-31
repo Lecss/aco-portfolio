@@ -13,6 +13,7 @@ def get_solution(request):
 
 	algo_session = MinMax(graph_wrapper.get_graph())
 	algo_session.run()
+	
 	context = {}
 	context['graph'] = graph_wrapper.get_serialized_graph()
 
