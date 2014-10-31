@@ -4,5 +4,7 @@ python:
 
 install: "pip install -r requirements.txt"
 
-script: "python ./aco_portfolio/manage.py test"
+script: 
+  - "cd ./aco_portfolio/" 
+  - "python manage.py test"
   
