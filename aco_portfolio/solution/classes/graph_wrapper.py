@@ -15,7 +15,7 @@ class GraphWrapper():
     def compute_profit(self,drug_qset):
         profit = {}
 
-        for key, val in drug_qset.iteritems():
+        for drug in drug_qset:
             pass
 
 
