@@ -6,6 +6,7 @@ import unittest
 from portfolio.models import Portfolio, Drug
 # Create your tests here.
 from classes.graph_wrapper import GraphWrapper
+from classes.min_max import MinMax
 from django.core.urlresolvers import reverse
 
 
@@ -82,9 +83,21 @@ class GraphWrapperTest(unittest.TestCase):
 
 
 
+class MinMaxTest(unittest.TestCase):
+	def setUp(self):
+		port = Portfolio.objects.get(pk=1)
+		drug_qset = port.drug_set.all()
+		wrapper = GraphWrapper(drug_qset)
 
+		self.mx = MinMax(wrapper)
+	
 
+	def test_initialize_ants(self):
+		self.assertTrue(len(self.mx.ants)== 0)
 
+		self.mx.initialize_ants(100)
+		self.assertTrue(len(self.mx.ants)== 100)
+		#TBC
 
 
 

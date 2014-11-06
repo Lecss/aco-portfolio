@@ -10,6 +10,16 @@ class GraphWrapper():
         self.drugs = self.extract_drugs_from_qset(drug_qset)
         self.G = self.create_graph()
         self.compute_drug_probabilities()
+        self.profit_year = self.compute_profit(drug_qset)
+
+    def compute_profit(self,drug_qset):
+        profit = {}
+
+        for key, val in drug_qset.iteritems():
+            pass
+
+
+
 
     def extract_drugs_from_qset(self, drug_qset):
         result = {}
