@@ -26,7 +26,6 @@ class MinMax(ACO):
                     ant.move_next(move_to)
                 else:
                     self.terminate_ant(ant)
-
         return self.G
 
     def terminate_ant(self, ant):
@@ -68,54 +67,12 @@ class MinMax(ACO):
                 expected_value += accum_pass * accum_cost
 
             expected_value += accum_pass * drugs[key][len(drugs[key])]["fail"] *  self.generating[key]
-
         return expected_value
-
-    """
-    def compute_expected(self, drug, stage, prob_r=1, la = False):
-
-
-        result = 0
-
-        if stage == len(drug)+1:
-            if prob_r > 0 and la is False:
-                ss = drug[stage-1]["prob"] * drug[stage-1]["fail"] * self.generating["E"]
-                return ss
-            else:
-                return 0
-        else:
-            xs = drug[stage]["cost"] * -prob_r
-            result += xs
-            if prob_r > 0:
-                result += self.compute_expected(drug, stage+1, prob_r * drug[stage]["fail"])
-
-            f = -prob_r * (1-drug[stage]["fail"])
-
-            if prob_r < 0 and la is True:
-                f = -1
-
-            result += self.compute_expected(drug, stage+1,f, True)
-
-        return result
-
-    def compute_expected(self, drug, stage, prob_r=1):
-        result = 0
-        if stage == len(drug)+1:
-            return drug[stage-1]["prob"] * drug[stage-1]["fail"] * self.generating["E"]
-        else:
-            result += drug[stage]["cost"] * -prob_r
-            result += self.compute_expected(drug, stage+1, prob_r * drug[stage]["fail"])
-
-
-        print result
-        return result
-    """
 
     def initialize_ants(self, ants_no):
         for x in range(ants_no):
             ant = Ant(self.wrapper.nest, self.wrapper.food, self.wrapper.get_graph())
             self.ants.append(ant)
-
 
     def initialize_pheromones(self, value=0.1):
         for edge in self.G.edges():
@@ -130,7 +87,6 @@ class MinMax(ACO):
                 best = 1 / solution.value
 
             self.G[edge[0]][edge[1]]["ph"] = (1 - ACO.p) * self.G[edge[0]][edge[1]]["ph"] + best
-
 
     def choose_next_node(self, ant):
         neighbours = ant.get_neighbours()
