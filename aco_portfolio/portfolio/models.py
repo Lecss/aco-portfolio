@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class Portfolio(models.Model):
 	name = models.CharField(max_length=100)
 	user = models.ForeignKey(User)
-	budget = models.DecimalField(decimal_places= 4, max_digits= 15)
+	budget = models.FloatField(default=0)
 
 class Drug(models.Model):
 	name = models.CharField(max_length=100)
@@ -15,5 +15,7 @@ class Drug(models.Model):
 class Stage(models.Model):
 	name = models.CharField(max_length=10)
 	drug = models.ForeignKey(Drug)
-	shit = models.CharField(max_length=20)
+	fail = models.IntegerField(default=0)
+	cost = models.FloatField(default=0)
+	duration = models.IntegerField(default=0)
 

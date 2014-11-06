@@ -1,3 +1,5 @@
+{% load staticfiles %}
+
 <html>
 <head>
 	<title>ACO</title>
@@ -7,14 +9,23 @@
 <body>
 	<h2>Portfolio Name: {{portfolio.name}} </h2>
 	{{drugs}}
-	<form method="post" action="solution">
+	<form id="drug_form" method="post" action="solution">
 		<input type="hidden" name="drug_list" value=""/>
 		{%for drug in drugs %}
-		<input type="text" name="{{drug.name}}" value="Drug {{drug.name}}"/>
-
+			{% for stage in drug.stage_set.all %}
+				<input type="text" data-stage="{{stage.name}}" data-drug="{{drug.name}}" name="{{drug.name}}-{{stage.name}}" value="Drug{{drug.name}}: Stage{{stage.name}}"/>
+			{% endfor %}
 		{% endfor %}
+
+		<input type="hidden" name="portfolio_id" value="{{portfolio.id}}">
 		<input type="submit" />
 		{% csrf_token %}
 	</form>
+
+
+	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+
+
+	
 </body>
 </hmtl>

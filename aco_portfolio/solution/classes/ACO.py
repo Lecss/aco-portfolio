@@ -1,13 +1,19 @@
 import networkx as nx 
 import abc
+from solution import Solution
+from ant import Ant
 
 class ACO():
 	__metaclass__ = abc.ABCMeta
 
+	alpha = 1 
+	betha = 3
+	p = 0.3
+
 	def __init__(self):
-		self.alpha = 1
-		self.betha = 2
 		self.G = None
+		self.best_solution = Solution()
+		self.ants = []
 
 
 	@abc.abstractmethod
