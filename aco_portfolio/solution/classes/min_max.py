@@ -31,7 +31,7 @@ class MinMax(ACO):
         return self.G
 
     def update_capital(self,ant):
-        path = ant.solution.path
+        
         
 
 
