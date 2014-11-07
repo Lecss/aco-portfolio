@@ -4,7 +4,7 @@ from ant import Ant
 import random
 import math
 from solution import Solution
-
+from sets import Set
 
 class MinMax(ACO):
     def __init__(self, graph_wrapper):
@@ -16,20 +16,27 @@ class MinMax(ACO):
 
         self.best_solution = Solution()
 
-    def run(self, iter_no, ants_no):
+    def run(self, iter_no, ants_no, portfolio_duration):
         self.initialize_ants(ants_no)
 
         for x in range(0, iter_no):
             for ant in self.ants:
                 move_to = self.choose_next_node(ant)
+                self.update_capital(ant)
+
                 if move_to != -1:
                     ant.move_next(move_to)
                 else:
-                    self.terminate_ant(ant)
+                    self.terminate_ant(ant, portfolio_duration)
         return self.G
 
-    def terminate_ant(self, ant):
-        new = self.expected_value(ant.solution.path)
+    def update_capital(self,ant):
+        path = ant.solution.path
+        
+
+
+    def terminate_ant(self, ant, portfolio_duration):
+        new = self.expected_value(ant.solution.path,portfolio_duration)
 
         if new > self.best_solution.value:
             self.best_solution.value = new
@@ -42,9 +49,28 @@ class MinMax(ACO):
         self.ants.remove(ant)
         self.initialize_ants(1)
 
-    def expected_value(self, path):
+    def expected_value(self, path, portfolio_duration):
         drugs = self.wrapper.get_drugs()
         #r =  self.compute_expected(drugs["E"], 1)
+
+        new_drugs = self.get_complete_drugs(path)
+        
+        expected_value = 0
+        for key, val in new_drugs.iteritems():
+            accum_pass= 1
+            accum_cost = 0
+            accum_time = 0
+            for s_key, stage in val.iteritems():
+                accum_pass *= stage["fail"]
+                accum_cost += -1 * stage["cost"] * accum_pass
+                accum_time += stage["duration"]
+                expected_value += accum_pass * accum_cost
+
+            expected_value += accum_pass * drugs[key][len(drugs[key])]["fail"] *  self.wrapper.profit_year[key] * (portfolio_duration - accum_time)
+        return expected_value
+
+    def get_complete_drugs(self,path):
+        drugs = self.wrapper.get_drugs()
 
         new_drugs = {}
         for x,y in drugs.iteritems():
@@ -52,22 +78,10 @@ class MinMax(ACO):
             for z,t in y.iteritems():
                 if str(x)+str(z) in path:
                     count += 1
-
             if count == len(y):
                 new_drugs[x]=y
+        return new_drugs
 
-
-        expected_value = 0
-        for key, val in new_drugs.iteritems():
-            accum_pass= 1
-            accum_cost = 0
-            for s_key, stage in val.iteritems():
-                accum_pass *= stage["fail"]
-                accum_cost += -1 * stage["cost"] * accum_pass
-                expected_value += accum_pass * accum_cost
-
-            expected_value += accum_pass * drugs[key][len(drugs[key])]["fail"] *  self.generating[key]
-        return expected_value
 
     def initialize_ants(self, ants_no):
         for x in range(ants_no):

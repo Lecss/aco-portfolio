@@ -8,7 +8,7 @@ class ACO():
 
 	alpha = 1 
 	betha = 3
-	p = 0.3
+	p = 0.9
 
 	def __init__(self):
 		self.G = None

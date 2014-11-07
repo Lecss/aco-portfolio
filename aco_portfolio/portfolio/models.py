@@ -7,6 +7,7 @@ class Portfolio(models.Model):
 	name = models.CharField(max_length=100)
 	user = models.ForeignKey(User)
 	budget = models.FloatField(default=0)
+	duration = models.IntegerField(default = 10)
 
 class Drug(models.Model):
 	name = models.CharField(max_length=100)
@@ -16,7 +17,7 @@ class Drug(models.Model):
 class Stage(models.Model):
 	name = models.CharField(max_length=10)
 	drug = models.ForeignKey(Drug)
-	fail = models.IntegerField(default=0)
+	fail = models.FloatField(default=0.0)
 	cost = models.FloatField(default=0)
 	duration = models.IntegerField(default=0)
 

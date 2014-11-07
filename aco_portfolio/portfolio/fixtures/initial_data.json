@@ -1,205 +1,211 @@
 [
-  {  
-      "fields":{  
-         "budget":150000.0,
-         "name":"Leopard",
-         "user":1
-      },
-      "model":"portfolio.portfolio",
-      "pk":1
-   },
-   {  
-      "fields":{  
-         "portfolio":1,
-         "name":"A"
-      },
-      "model":"portfolio.drug",
-      "pk":1
-   },
-   {  
-      "fields":{  
-         "portfolio":1,
-         "name":"B"
-      },
-      "model":"portfolio.drug",
-      "pk":2
-   },
-   {  
-      "fields":{  
-         "portfolio":1,
-         "name":"C"
-      },
-      "model":"portfolio.drug",
-      "pk":3
-   },
-   {  
-      "fields":{  
-         "portfolio":1,
-         "name":"D"
-      },
-      "model":"portfolio.drug",
-      "pk":4
-   },
-   {  
-      "fields":{  
-         "portfolio":1,
-         "name":"E"
-      },
-      "model":"portfolio.drug",
-      "pk":5
-   },
-   {  
-      "fields":{  
-         "fail":0.5,
-         "duration":2,
-         "cost":1000.0,
-         "name":"One",
-         "drug":1
-      },
-      "model":"portfolio.stage",
-      "pk":1
-   },
-   {  
-      "fields":{  
-         "fail":0.4,
-         "duration":2,
-         "cost":1000.0,
-         "name":"Two",
-         "drug":1
-      },
-      "model":"portfolio.stage",
-      "pk":2
-   },
-   {  
-      "fields":{  
-         "fail":0.7,
-         "duration":4,
-         "cost":5000.0,
-         "name":"Three",
-         "drug":1
-      },
-      "model":"portfolio.stage",
-      "pk":3
-   },
-   {  
-      "fields":{  
-         "fail":0.2,
-         "duration":2,
-         "cost":3000.0,
-         "name":"One",
-         "drug":2
-      },
-      "model":"portfolio.stage",
-      "pk":4
-   },
-   {  
-      "fields":{  
-         "fail":0.7,
-         "duration":3,
-         "cost":1000.0,
-         "name":"Two",
-         "drug":2
-      },
-      "model":"portfolio.stage",
-      "pk":5
-   },
-   {  
-      "fields":{  
-         "fail":0.8,
-         "duration":1,
-         "cost":2000.0,
-         "name":"Three",
-         "drug":2
-      },
-      "model":"portfolio.stage",
-      "pk":6
-   },
-   {  
-      "fields":{  
-         "fail":0.5,
-         "duration":1,
-         "cost":4000.0,
-         "name":"One",
-         "drug":3
-      },
-      "model":"portfolio.stage",
-      "pk":7
-   },
-   {  
-      "fields":{  
-         "fail":0.2,
-         "duration":5,
-         "cost":5000.0,
-         "name":"Two",
-         "drug":3
-      },
-      "model":"portfolio.stage",
-      "pk":8
-   },
-   {  
-      "fields":{  
-         "fail":0.6,
-         "duration":2,
-         "cost":1000.0,
-         "name":"One",
-         "drug":4
-      },
-      "model":"portfolio.stage",
-      "pk":9
-   },
-   {  
-      "fields":{  
-         "fail":0.4,
-         "duration":2,
-         "cost":1000.0,
-         "name":"Two",
-         "drug":4
-      },
-      "model":"portfolio.stage",
-      "pk":10
-   },
-   {  
-      "fields":{  
-         "fail":0.7,
-         "duration":4,
-         "cost":5000.0,
-         "name":"Three",
-         "drug":4
-      },
-      "model":"portfolio.stage",
-      "pk":11
-   },
-   {  
-      "fields":{  
-         "fail":0.5,
-         "duration":2,
-         "cost":1000.0,
-         "name":"One",
-         "drug":5
-      },
-      "model":"portfolio.stage",
-      "pk":12
-   },
-   {  
-      "fields":{  
-         "fail":0.5,
-         "duration":2,
-         "cost":1000.0,
-         "name":"Two",
-         "drug":5
-      },
-      "model":"portfolio.stage",
-      "pk":13
-   },
-   {  
-      "fields":{  
-         "fail":0.5,
-         "duration":2,
-         "cost":5000.0,
-         "name":"Three",
-         "drug":5
-      },
-      "model":"portfolio.stage",
-      "pk":14
-   }
+{
+  "fields": {
+    "duration": 20,
+    "budget": 150000.0,
+    "name": "Leopard",
+    "user": 1
+  },
+  "model": "portfolio.portfolio",
+  "pk": 1
+},
+{
+  "fields": {
+    "portfolio": 1,
+    "name": "A",
+    "profit_year": 10000.0
+  },
+  "model": "portfolio.drug",
+  "pk": 1
+},
+{
+  "fields": {
+    "portfolio": 1,
+    "name": "B",
+    "profit_year": 5000.0
+  },
+  "model": "portfolio.drug",
+  "pk": 2
+},
+{
+  "fields": {
+    "portfolio": 1,
+    "name": "C",
+    "profit_year": 7000.0
+  },
+  "model": "portfolio.drug",
+  "pk": 3
+},
+{
+  "fields": {
+    "portfolio": 1,
+    "name": "D",
+    "profit_year": 11120.0
+  },
+  "model": "portfolio.drug",
+  "pk": 4
+},
+{
+  "fields": {
+    "portfolio": 1,
+    "name": "E",
+    "profit_year": 9000.0
+  },
+  "model": "portfolio.drug",
+  "pk": 5
+},
+{
+  "fields": {
+    "fail": 0.6,
+    "duration": 2,
+    "cost": 1000.0,
+    "name": "One",
+    "drug": 1
+  },
+  "model": "portfolio.stage",
+  "pk": 1
+},
+{
+  "fields": {
+    "fail": 0.6,
+    "duration": 2,
+    "cost": 1000.0,
+    "name": "Two",
+    "drug": 1
+  },
+  "model": "portfolio.stage",
+  "pk": 2
+},
+{
+  "fields": {
+    "fail": 0.7,
+    "duration": 4,
+    "cost": 5000.0,
+    "name": "Three",
+    "drug": 1
+  },
+  "model": "portfolio.stage",
+  "pk": 3
+},
+{
+  "fields": {
+    "fail": 0.2,
+    "duration": 2,
+    "cost": 3000.0,
+    "name": "One",
+    "drug": 2
+  },
+  "model": "portfolio.stage",
+  "pk": 4
+},
+{
+  "fields": {
+    "fail": 0.4,
+    "duration": 3,
+    "cost": 1000.0,
+    "name": "Two",
+    "drug": 2
+  },
+  "model": "portfolio.stage",
+  "pk": 5
+},
+{
+  "fields": {
+    "fail": 0.5,
+    "duration": 1,
+    "cost": 2000.0,
+    "name": "Three",
+    "drug": 2
+  },
+  "model": "portfolio.stage",
+  "pk": 6
+},
+{
+  "fields": {
+    "fail": 0.8,
+    "duration": 1,
+    "cost": 4000.0,
+    "name": "One",
+    "drug": 3
+  },
+  "model": "portfolio.stage",
+  "pk": 7
+},
+{
+  "fields": {
+    "fail": 0.9,
+    "duration": 5,
+    "cost": 5000.0,
+    "name": "Two",
+    "drug": 3
+  },
+  "model": "portfolio.stage",
+  "pk": 8
+},
+{
+  "fields": {
+    "fail": 0.7,
+    "duration": 2,
+    "cost": 1000.0,
+    "name": "One",
+    "drug": 4
+  },
+  "model": "portfolio.stage",
+  "pk": 9
+},
+{
+  "fields": {
+    "fail": 0.4,
+    "duration": 2,
+    "cost": 1000.0,
+    "name": "Two",
+    "drug": 4
+  },
+  "model": "portfolio.stage",
+  "pk": 10
+},
+{
+  "fields": {
+    "fail": 0.6,
+    "duration": 4,
+    "cost": 5000.0,
+    "name": "Three",
+    "drug": 4
+  },
+  "model": "portfolio.stage",
+  "pk": 11
+},
+{
+  "fields": {
+    "fail": 0.5,
+    "duration": 2,
+    "cost": 1000.0,
+    "name": "One",
+    "drug": 5
+  },
+  "model": "portfolio.stage",
+  "pk": 12
+},
+{
+  "fields": {
+    "fail": 0.9,
+    "duration": 2,
+    "cost": 1000.0,
+    "name": "Two",
+    "drug": 5
+  },
+  "model": "portfolio.stage",
+  "pk": 13
+},
+{
+  "fields": {
+    "fail": 0.3,
+    "duration": 2,
+    "cost": 5000.0,
+    "name": "Three",
+    "drug": 5
+  },
+  "model": "portfolio.stage",
+  "pk": 14
+}
 ]

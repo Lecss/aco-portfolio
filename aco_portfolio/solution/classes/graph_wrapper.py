@@ -16,9 +16,9 @@ class GraphWrapper():
         profit = {}
 
         for drug in drug_qset:
-            pass
+            profit[drug.name] = drug.profit_year
 
-
+        return profit
 
 
     def extract_drugs_from_qset(self, drug_qset):
@@ -32,9 +32,10 @@ class GraphWrapper():
                 stage_info["duration"] = stage.duration
                 stage_info["fail"] = stage.fail
 
-            result[drug.name][count] = stage_info
-            count += 1
+                result[drug.name][count] = stage_info
+                count += 1
 
+        # test no 'nodes' in the result is what expected : = no of all incoming stages
         return result
 
     def get_graph(self):

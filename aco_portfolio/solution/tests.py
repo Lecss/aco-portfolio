@@ -18,6 +18,9 @@ class GraphWrapperTest(unittest.TestCase):
 		self.drug_qset = port.drug_set.all()
 		self.wrapper = self.create_wrapper()
 		self.drugs = self.wrapper.get_drugs()
+		self.stages = 0
+		for x,y in self.drugs.items():
+			self.stages += len(y)
 
 
 	def create_wrapper(self):
@@ -38,10 +41,11 @@ class GraphWrapperTest(unittest.TestCase):
 		g = self.wrapper.get_graph()
 
 		self.assertTrue(isinstance(g, nx.Graph))
-
+		print g.nodes()
 		# minus 2 for the 'food' and 'nest' nodes
 		count = len(g.nodes())-2
-		self.assertEqual(count, len(self.drugs))
+
+		self.assertEqual(count, self.stages)
 		self.assertNotEqual(g,None)
 
 	def test_get_serialized_wrapper_graph(self):
@@ -49,9 +53,9 @@ class GraphWrapperTest(unittest.TestCase):
 
 		self.assertNotEqual(g, None)
 		self.assertNotEqual(g, "")
-		
+	
 		count = len(json.loads(g)['nodes'])
-		self.assertEqual(count, len(self.drugs)+2)
+		self.assertEqual(count, self.stages +2)
 
 	def test_extract_drugs_from_qset(self):
 		extracted = self.wrapper.extract_drugs_from_qset(self.drug_qset)
