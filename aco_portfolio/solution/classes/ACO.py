@@ -14,6 +14,7 @@ class ACO():
 		self.G = None
 		self.best_solution = Solution()
 		self.ants = []
+		
 
 
 	@abc.abstractmethod

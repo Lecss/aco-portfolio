@@ -18,6 +18,7 @@ class Ant():
         self.total_weight = 0
         self.time =  0;
         self.rr = 0
+        
 
         self.capital = 25000
         self.generated = 0
