@@ -131,19 +131,43 @@ class MinMaxTest(unittest.TestCase):
     	drugs = self.mx.wrapper.get_drugs()
 
     	path = ['nest', u'A1', u'A2', u'B2', u'B1', u'A3', u'B3','food']
+        path2 = ['nest', u'A1', u'A2', u'B2', u'B1', u'A3', u'B3',"C2",'food']
+
         path_no_food = ['nest', u'A1', u'A2', u'B2', u'B1', u'A3', u'B3']
 
         self.mx.wrapper.profit_year["A"] = 10000
-        self.mx.wrapper.profit_year["C"] = 15000
         self.mx.wrapper.profit_year["B"] = 20000
+        self.mx.wrapper.profit_year["C"] = 15000
+        #-------------------------------------------------------------------#
         
         total = self.mx.drug_expected_value("A",drugs["A"], 10) + self.mx.drug_expected_value("B",drugs["B"], 10)
-        total2= self.mx.path_expected_value(path,10)
-        total3= self.mx.path_expected_value(path_no_food,10)
-        self.assertEqual(total2, total)
-        self.assertEqual(total3, total)
+        totalAB= self.mx.path_expected_value(path,10)
+
+        totalABnf= self.mx.path_expected_value(path_no_food,10)
+
+        totalAB_C= self.mx.path_expected_value(path2 ,10)
+
+        self.assertEqual(total, totalAB)
+        self.assertEqual(total, totalABnf)
+
+        self.assertEqual(totalAB_C, total-drugs["C"][2]["cost"])
 
 
+    def test_get_complete_drugs(self):
+    	path = ['nest', u'A1', u'A2', u'B2', u'B1', u'A3', u'B3','food']
+        path_no_food = ['nest', u'A1', u'A2', u'B2', u'B1', u'A3', u'B3']
+        path2 = ['nest', u'A1', u'A2', u'B2', u'B1', u'A3', u'B3',u'C2','food']
+        path3 = ['nest']
+        path4 = ['nest', u'A1', u'A2', u'B2'] 
+
+        self.assertEquals(len(self.mx.get_complete_drugs(path)['complete']), 2)
+        self.assertEquals(len(self.mx.get_complete_drugs(path_no_food)['complete']), 2)
+        self.assertEquals(len(self.mx.get_complete_drugs(path2)['complete']), 2)
+        self.assertEquals(len(self.mx.get_complete_drugs(path3)['complete']), 0)
+
+        self.assertEquals(len(self.mx.get_complete_drugs(path2)['incomplete']), 1)
+        self.assertEquals(self.mx.get_complete_drugs(path2)['incomplete'], ["C2"])
+        self.assertEquals(self.mx.get_complete_drugs(path4)['incomplete'], ["A1", "A2", "B2"])
 
 
 

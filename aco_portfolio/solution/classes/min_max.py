@@ -74,35 +74,6 @@ class MinMax(ACO):
         self.ants.remove(ant)
         self.initialize_ants(1)
 
-    """ def expected_value(self, path, portfolio_duration):
-                 drugs = self.wrapper.get_drugs()
-                 #r =  self.compute_expected(drugs["E"], 1)
-         
-                 new_drugs = self.get_complete_drugs(path)
-                 complete = new_drugs["complete"]
-                 incomplete = new_drugs["incomplete"]
-                 expected_value = 0
-         
-                 gener = 0 
-                 for key, val in complete.iteritems():
-                     accum_pass= 1
-                     accum_cost = 0
-                     accum_time = 0
-                     for s_key, stage in val.iteritems():
-                         accum_pass *= stage["fail"]
-                         accum_cost += -1 * stage["cost"] * accum_pass
-                         accum_time += stage["duration"]
-                         expected_value += accum_pass * accum_cost
-         
-         
-                     gener+= (self.wrapper.profit_year[key]) * (portfolio_duration - accum_time)
-                     expected_value += accum_pass * drugs[key][len(drugs[key])]["fail"] *  (self.wrapper.profit_year[key]) * (portfolio_duration - accum_time)
-                 
-                 for x in incomplete:
-                     expected_value -= self.G.node[x]["cost"]
-                 return expected_value
-    """
-
     def drug_expected_value(self, drug_key, stages, portfolio_duration):
         accum_pass= 1
         accum_cost = 0
@@ -125,7 +96,6 @@ class MinMax(ACO):
         new_drugs = self.get_complete_drugs(path)
         complete = new_drugs["complete"]
         incomplete = new_drugs["incomplete"]
-
         expected_value = 0
 
         for key, val in complete.iteritems():
@@ -137,11 +107,10 @@ class MinMax(ACO):
         return expected_value
 
 
-
     def get_complete_drugs(self,path):
         drugs = self.wrapper.get_drugs()
 
-        new_drugs = {}
+        tmp_drugs = {}
         complete = {}
         remaining = []
         incomplete = []
@@ -150,17 +119,18 @@ class MinMax(ACO):
             for z,t in y.iteritems():
                 if str(x)+str(z) in path:
                     count += 1
+
             if count == len(y):
                 complete[x]=y
             else:
-                for tmp in range(1, count+1):
-                    incomplete.append(str(x) + str(tmp))
-
+                for z,t in y.iteritems():
+                    if str(x)+str(z) in path:
+                        incomplete.append(str(x)+str(z))
         
-        new_drugs["complete"] = complete
-        new_drugs["incomplete"] = incomplete
+        tmp_drugs["complete"] = complete
+        tmp_drugs["incomplete"] = incomplete
 
-        return new_drugs
+        return tmp_drugs
 
 
     def initialize_ants(self, ants_no):
