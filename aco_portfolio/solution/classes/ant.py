@@ -17,10 +17,8 @@ class Ant():
         self.unavailable = Set([])
         self.total_weight = 0
         self.time =  0;
-        self.rr = 0
-        
 
-        self.capital = 25000
+        self.capital = 15000
         self.generated = 0
         self.move_next(start)
 
@@ -29,13 +27,13 @@ class Ant():
         self.curr_node = node
         self.total_weight += self.graph.node[self.curr_node]['cost']
 
+
     def get_weight(self):
         return self.total_weight
 
     def get_neighbours(self):
         neigh = self.graph.neighbors(self.curr_node)
         sanitized = []
-        self.rr += 3
 
         for x in neigh:
             if x not in self.solution.path and x not in self.unavailable:
@@ -47,4 +45,5 @@ class Ant():
 
                 if self.graph.node[x]['cost'] + self.total_weight <= self.capital + self.generated:
                     sanitized.append(x)
+        sanitized.remove("food")
         return sanitized
