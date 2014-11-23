@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'portfolio',
     'solution',
     'coverage',
+    'fts',
 )
 
 MIDDLEWARE_CLASSES = (

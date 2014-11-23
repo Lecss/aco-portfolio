@@ -12,8 +12,7 @@ class MinMax(ACO):
         self.wrapper = graph_wrapper
         self.ants = []
         self.initialize_pheromones(0.1)
-        self.generating = {"A": 5000 , "B": 10000 , "C": 7000, "D": 5000, "E":5000}
-
+        
         self.best_solution = Solution()
 
     def run(self, iter_no, ants_no, portfolio_duration):
@@ -21,46 +20,20 @@ class MinMax(ACO):
 
         for x in range(0, iter_no):
             for ant in self.ants:
-
-                self.update_capital(ant)
-                
                 move_to = self.choose_next_node(ant)
+                ant.update_capital(self.get_complete_drugs(ant.solution.path)["complete"], portfolio_duration, self.wrapper.profit_year)
+
                 if move_to is not "food":
                     ant.move_next(move_to)
                 else:
                     self.terminate_ant(ant, portfolio_duration)
         return self.G
 
-    def update_capital(self,ant):
-            path = ant.solution.path
-
-            concurrent = {}
-            complete = self.get_complete_drugs(path)["complete"]
-            max_time = 0
-            
-            for node in path:
-                if node is not "nest" and node is not "food":
-                    drug_name = ''.join([i for i in node if not i.isdigit()])
-
-                    if drug_name in concurrent.keys():
-                        concurrent[drug_name] += self.G.node[node]["duration"]
-                    else:
-                        concurrent[drug_name] = self.G.node[node]["duration"]
-
-                    if concurrent[drug_name] > max_time:
-                        max_time = min(concurrent[drug_name], 10)
-            
-            ant.generated = 0
-            for co in complete:
-                #if complete then total duration is stored in concurrent
-                if concurrent[co] <= max_time:
-                    ant.generated += (max_time - concurrent[co]) * self.wrapper.profit_year[co]
-                    
-
 
     def terminate_ant(self, ant, portfolio_duration):
         new = self.path_expected_value(ant.solution.path, portfolio_duration)
-        ant.solution.path.append("food")
+        new += ant.generated
+        
         if new > self.best_solution.value:
             self.best_solution.value = new
             self.best_solution.path = ant.solution.path
@@ -70,6 +43,7 @@ class MinMax(ACO):
             print self.best_solution.value
             print ant.generated
 
+            print ant.time
 
         self.ants.remove(ant)
         self.initialize_ants(1)
@@ -159,6 +133,7 @@ class MinMax(ACO):
 
         # make sure the food is last chosen
         if len(neighbours) == 0:
+            ant.solution.path.append("food")
             return "food"
 
         for node in neighbours:

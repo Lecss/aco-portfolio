@@ -66,8 +66,6 @@ class GraphWrapper():
                 if n is not y:
                     g.add_edge(n, y)
 
-    def get_planned_revenue(self, drug):
-        return self.drugs[drug]['revenue']
 
     def get_drugs(self):
         return self.drugs

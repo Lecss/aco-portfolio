@@ -6,13 +6,12 @@ import unittest
 from portfolio.models import Portfolio, Drug
 # Create your tests here.
 from classes.graph_wrapper import GraphWrapper
+from classes.ant import Ant
 from classes.min_max import MinMax
 from django.core.urlresolvers import reverse
 
 
 class GraphWrapperTest(unittest.TestCase):
-
-
     def setUp(self):
         port = Portfolio.objects.get(pk=1)
         self.drug_qset = port.drug_set.all()
@@ -126,6 +125,7 @@ class MinMaxTest(unittest.TestCase):
         self.assertEqual(self.mx.drug_expected_value("A",drugs["A"], 10), -1444)
         self.assertEqual(int(self.mx.drug_expected_value("C",drugs["C"], 10)), 25520)
 
+
     def test_path_expected_value(self):
     	self.set_drugs()
     	drugs = self.mx.wrapper.get_drugs()
@@ -168,6 +168,41 @@ class MinMaxTest(unittest.TestCase):
         self.assertEquals(len(self.mx.get_complete_drugs(path2)['incomplete']), 1)
         self.assertEquals(self.mx.get_complete_drugs(path2)['incomplete'], ["C2"])
         self.assertEquals(self.mx.get_complete_drugs(path4)['incomplete'], ["A1", "A2", "B2"])
+
+
+class AntTest(unittest.TestCase):
+    def setUp(self):
+        port = Portfolio.objects.get(pk=1)
+        self.drug_qset = port.drug_set.all()
+        self.wrapper = GraphWrapper(self.drug_qset)
+        self.drugs = self.wrapper.get_drugs()
+        self.graph = self.wrapper.get_graph()
+        
+        self.ant = Ant(self.wrapper.nest, self.wrapper.food, self.graph)
+
+
+    def test_update_capital(self):
+    	self.ant.solution.path = ['nest', u'C2', u'C1', u'A3', u'A2', 'food']
+    	self.ant.update_capital({"C":self.drugs["C"]}, 20, self.wrapper.profit_year)
+    	print self.ant.generated
+
+    	self.ant.solution.path = ['nest', u'C2', u'C1', u'A3', u'A2',u'A1', 'food']
+    	self.ant.update_capital({"A":self.drugs["A"], "C":self.drugs["C"]}, 20, self.wrapper.profit_year)
+    	print self.ant.generated
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
