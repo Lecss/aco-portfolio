@@ -178,17 +178,17 @@ class AntTest(unittest.TestCase):
         self.drugs = self.wrapper.get_drugs()
         self.graph = self.wrapper.get_graph()
         
-        self.ant = Ant(self.wrapper.nest, self.wrapper.food, self.graph)
+        self.ant = Ant(self.wrapper)
 
 
-    def test_update_capital(self):
-    	self.ant.solution.path = ['nest', u'C2', u'C1', u'A3', u'A2', 'food']
-    	self.ant.update_capital({"C":self.drugs["C"]}, 20, self.wrapper.profit_year)
-    	print self.ant.generated
-
-    	self.ant.solution.path = ['nest', u'C2', u'C1', u'A3', u'A2',u'A1', 'food']
-    	self.ant.update_capital({"A":self.drugs["A"], "C":self.drugs["C"]}, 20, self.wrapper.profit_year)
-    	print self.ant.generated
+    """ def test_update_capital(self):
+                 self.ant.solution.path = ['nest', u'C2', u'C1', u'A3', u'A2', 'food']
+                 self.ant.update_capital({"C":self.drugs["C"]}, 20, self.wrapper.profit_year)
+                 print self.ant.generated
+         
+                 self.ant.solution.path = ['nest', u'C2', u'C1', u'A3', u'A2',u'A1', 'food']
+                 self.ant.update_capital({"A":self.drugs["A"], "C":self.drugs["C"]}, 20, self.wrapper.profit_year)
+                 print self.ant.generated"""
 
 
 

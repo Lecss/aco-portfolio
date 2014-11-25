@@ -6,9 +6,9 @@ from ant import Ant
 class ACO():
 	__metaclass__ = abc.ABCMeta
 
-	alpha = 1 
+	alpha = 2
 	betha = 3
-	p = 0.9
+	p = 0.3
 
 	def __init__(self):
 		self.G = None

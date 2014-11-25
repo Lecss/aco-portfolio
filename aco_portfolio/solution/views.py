@@ -7,9 +7,7 @@ from portfolio.models import Portfolio
 def get_solution(request):
 	 
 	portfolio = Portfolio.objects.get(pk = request.POST['portfolio_id'])
-
 	drugs = portfolio.drug_set.all()
-
 	graph_wrapper = GraphWrapper(drugs)
 
 	algo_session = MinMax(graph_wrapper)
@@ -17,5 +15,4 @@ def get_solution(request):
 	
 	context = {}
 	context['graph'] = graph_wrapper.get_serialized_graph()
-
 	return render(request, 'solution.html', context)

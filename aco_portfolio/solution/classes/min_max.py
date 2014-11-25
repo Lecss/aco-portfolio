@@ -21,29 +21,32 @@ class MinMax(ACO):
         for x in range(0, iter_no):
             for ant in self.ants:
                 move_to = self.choose_next_node(ant)
-                ant.update_capital(self.get_complete_drugs(ant.solution.path)["complete"], portfolio_duration, self.wrapper.profit_year)
 
-                if move_to is not "food":
-                    ant.move_next(move_to)
-                else:
+                if move_to is "food" and portfolio_duration > ant.time_invested:
+                    continue
+                elif move_to is "food" and portfolio_duration == ant.time_invested:
+                    ant.move_next(move_to, get_complete_drugs(ant.solution.path))
                     self.terminate_ant(ant, portfolio_duration)
+                else:
+                    ant.move_next(move_to, self.get_complete_drugs(ant.solution.path))
+
         return self.G
 
 
     def terminate_ant(self, ant, portfolio_duration):
-        new = self.path_expected_value(ant.solution.path, portfolio_duration)
-        new += ant.generated
-        
-        if new > self.best_solution.value:
-            self.best_solution.value = new
-            self.best_solution.path = ant.solution.path
-            self.update_pheromones()
+        if "food" in ant.solution.path:
+            new = self.path_expected_value(ant.solution.path, portfolio_duration)
+            new += ant.generated
+            
+            if new > self.best_solution.value:
+                self.best_solution.value = new
+                self.best_solution.path = ant.solution.path
+                self.update_pheromones()
 
-            print self.best_solution.path
-            print self.best_solution.value
-            print ant.generated
-
-            print ant.time
+                print self.best_solution.path
+                print self.best_solution.value
+                print ant.generated
+                print ant.time_invested
 
         self.ants.remove(ant)
         self.initialize_ants(1)
@@ -80,7 +83,6 @@ class MinMax(ACO):
 
         return expected_value
 
-
     def get_complete_drugs(self,path):
         drugs = self.wrapper.get_drugs()
 
@@ -106,10 +108,9 @@ class MinMax(ACO):
 
         return tmp_drugs
 
-
     def initialize_ants(self, ants_no):
         for x in range(ants_no):
-            ant = Ant(self.wrapper.nest, self.wrapper.food, self.wrapper.get_graph())
+            ant = Ant(self.wrapper)
             self.ants.append(ant)
 
     def initialize_pheromones(self, value=0.1):
@@ -124,7 +125,12 @@ class MinMax(ACO):
             if self.G[edge[0]][edge[1]] in solution.path:
                 best = 1 / solution.value
 
-            self.G[edge[0]][edge[1]]["ph"] = (1 - ACO.p) * self.G[edge[0]][edge[1]]["ph"] + best
+            ph_value = (1 - ACO.p) * self.G[edge[0]][edge[1]]["ph"] + best
+
+            if ph_value >= solution.value:
+                self.G[edge[0]][edge[1]]["ph"] = solution.value
+            else:
+                self.G[edge[0]][edge[1]]["ph"] = ph_value
 
     def choose_next_node(self, ant):
         neighbours = ant.get_neighbours()
@@ -132,8 +138,9 @@ class MinMax(ACO):
         sum_p = 0
 
         # make sure the food is last chosen
-        if len(neighbours) == 0:
-            ant.solution.path.append("food")
+        if len(neighbours) > 1 and "food" in neighbours:
+            neighbours.remove("food")
+        elif len(neighbours) == 1 and "food" in neighbours:
             return "food"
 
         for node in neighbours:

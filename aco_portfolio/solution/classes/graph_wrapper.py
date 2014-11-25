@@ -17,9 +17,7 @@ class GraphWrapper():
 
         for drug in drug_qset:
             profit[drug.name] = drug.profit_year
-
         return profit
-
 
     def extract_drugs_from_qset(self, drug_qset):
         result = {}
