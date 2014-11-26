@@ -21,7 +21,13 @@ class Ant():
 
         self.capital = 10000
         self.generated = 0
+        self.substracted = [0] * 11
+
+        self.extra = []
+        self.last_year = 0
+
         self.move_next(wrapper.nest, None)
+        """ self.move_next("L2", None)"""
 
         self.position_to_year = []
         
@@ -64,18 +70,28 @@ class Ant():
             if drug not in drugs_so_far.keys():
                 drugs_so_far[drug] = 0
 
-            self.position_to_year[i] = drugs_so_far[drug]
-            drugs_so_far[drug] += self.graph.node[x]["duration"]
+
+            wait = 0 
+
+            if x in self.extra:
+                wait += self.last_year
+
+            self.position_to_year[i] =  drugs_so_far[drug]
+            if wait != 0:
+                drugs_so_far[drug] +=  wait - drugs_so_far[drug] + self.graph.node[x]["duration"]
+            else:
+                drugs_so_far[drug] += self.graph.node[x]["duration"]
 
             tmp_capital -= self.graph.node[x]["cost"]
             i+=1
 
 
-        print tmp_capital
-        print 
-        print self.solution.path
-        # what year does this stage start in
-        print self.position_to_year
+        if self.ant_id == 2000000:
+            print tmp_capital
+            print 
+            print self.solution.path
+            # what year does this stage start in
+            print self.position_to_year
         
 
         i =0
@@ -86,23 +102,29 @@ class Ant():
                 i+=1
             except:
                 pass
-
-        print generated_per_year
-        print spent_per_year
-        print 
+        if self.ant_id == 20000000:
+            print generated_per_year
+            print spent_per_year
+            print 
 
         merged = [0] * 11
        
         running_total = self.capital
         i = 0
+        self.substracted = [0] * 11
         for x in range(0,11):
             merged[i] = running_total + spent_per_year[i] + generated_per_year[i]
             running_total = merged[i]
+
+            self.substracted[i] = generated_per_year[i] + spent_per_year[i]
             i +=1
 
-        print merged
+        self.generated = generated_per_year
+        if self.ant_id == 2000000:
+            print merged
+            print self.substracted
 
-        print "--------------------"
+            print "--------------------"
     def get_weight(self):
         return self.total_weight
 
@@ -113,8 +135,23 @@ class Ant():
         for x in neigh:
             if x not in self.solution.path and x not in self.unavailable:
                 #TEST FOR EMPTY NODE{X} => node[x] = {}
-                if self.graph.node[x]['cost'] + self.total_weight <= self.capital + self.generated:
+                if self.graph.node[x]['cost'] + self.total_weight <= self.capital:
                     sanitized.append(x)
+
+        for x in neigh:
+            if x not in self.solution.path and x not in self.unavailable:
+                i = 0 
+                if (len(sanitized) == 0 or (len(sanitized) == 1 and "food" in sanitized)):
+                    available = self.capital - sum(self.substracted)
+                   
+                    while (self.substracted[i] < 1) and i< 10:
+                        i+=1
+
+              
+                if self.graph.node[x]["cost"] < self.substracted[i]: 
+                    sanitized.append(x)
+                    self.extra.append(x)
+                    self.last_year = i
 
         return sanitized
 

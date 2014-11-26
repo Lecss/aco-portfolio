@@ -22,10 +22,9 @@ class MinMax(ACO):
             for ant in self.ants:
                 move_to = self.choose_next_node(ant)
 
-                if move_to is "food" and portfolio_duration > ant.time_invested:
-                    continue
-                elif move_to is "food" and portfolio_duration == ant.time_invested:
-                    ant.move_next(move_to, get_complete_drugs(ant.solution.path))
+        
+                if move_to is "food":
+                    ant.move_next(move_to, self.get_complete_drugs(ant.solution.path))
                     self.terminate_ant(ant, portfolio_duration)
                 else:
                     ant.move_next(move_to, self.get_complete_drugs(ant.solution.path))
@@ -36,18 +35,21 @@ class MinMax(ACO):
     def terminate_ant(self, ant, portfolio_duration):
         if "food" in ant.solution.path:
             new = self.path_expected_value(ant.solution.path, portfolio_duration)
-            new += ant.generated
+            #new += ant.generated
             
             if new > self.best_solution.value:
                 self.best_solution.value = new
                 self.best_solution.path = ant.solution.path
                 self.update_pheromones()
-
+                print "-----------------------"
                 print self.best_solution.path
-                print self.best_solution.value
+                #print self.best_solution.value
+                #print (self.get_complete_drugs(ant.solution.path)["complete"]).keys()
+                
+                print 
                 print ant.generated
-                print ant.time_invested
-
+                print ant.substracted
+                print ant.position_to_year
         self.ants.remove(ant)
         self.initialize_ants(1)
 
