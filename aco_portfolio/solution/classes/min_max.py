@@ -41,15 +41,19 @@ class MinMax(ACO):
                 self.best_solution.value = new
                 self.best_solution.path = ant.solution.path
                 self.update_pheromones()
-                print "-----------------------"
-                print self.best_solution.path
-                #print self.best_solution.value
-                #print (self.get_complete_drugs(ant.solution.path)["complete"]).keys()
                 
-                print 
-                print ant.generated
-                print ant.substracted
-                print ant.position_to_year
+                if ant.ant_id == 200000:
+                    print "----------------------- best solution"
+                    print self.best_solution.path
+                    #print self.best_solution.value
+                    #print (self.get_complete_drugs(ant.solution.path)["complete"]).keys()
+                    
+                    print 
+                    print ant.generated
+                    print ant.merged_glob
+                    print ant.substracted
+                    print ant.position_to_year
+
         self.ants.remove(ant)
         self.initialize_ants(1)
 

@@ -6,6 +6,7 @@ from time_window import TimeWindow
 class Ant():
 
     ant_id = 0
+    print_id = -1
 
     def __init__(self, wrapper):
         self.solution = Solution()
@@ -20,16 +21,21 @@ class Ant():
         self.time_invested =  0;
 
         self.capital = 10000
-        self.generated = 0
+        self.generated = [0]*11
         self.substracted = [0] * 11
 
+        self.merged_glob = [self.capital] * 11
         self.extra = []
         self.last_year = 0
+
+        self.drugs_so_far = {}
 
         self.move_next(wrapper.nest, None)
         """ self.move_next("L2", None)"""
 
-        self.position_to_year = []
+        self.position_to_year = [0]
+
+        
         
     def move_next(self, node, complete):
         self.unavailable.add(self.curr_node)
@@ -45,7 +51,15 @@ class Ant():
         tmp_capital = self.capital 
         generated_per_year = [0] * 11
         spent_per_year = [0] * 11
-        self.position_to_year = [0] * len(self.solution.path)
+
+
+        diff = len(self.solution.path) - len(self.position_to_year)
+
+        while(diff != 0):
+            self.position_to_year.append(0)
+            diff -= 1
+
+
 
         for d, d_val in complete.iteritems():
             total_duration = 1
@@ -57,37 +71,38 @@ class Ant():
                 generated_per_year[total_duration] += self.wrapper.profit_year[str(d)]
                 total_duration += 1
 
-        i = 0
-        drugs_so_far = {}
 
-        for x in self.solution.path:
-            if x is "nest" or x is "food":
-                i+=1
-                continue
 
-            drug = x[:-1]
+
+
+        drugs_so_far = self.drugs_so_far
+
+        i = len(self.solution.path)-1
+        stage = self.solution.path[i]
+
+        if stage is not "nest" and stage is not "food":
+            drug = stage[:-1]
 
             if drug not in drugs_so_far.keys():
                 drugs_so_far[drug] = 0
 
+            wait = 0
 
-            wait = 0 
+            if stage in self.extra:            
 
-            if x in self.extra:
-                wait += self.last_year
-
-            self.position_to_year[i] =  drugs_so_far[drug]
-            if wait != 0:
-                drugs_so_far[drug] +=  wait - drugs_so_far[drug] + self.graph.node[x]["duration"]
-            else:
-                drugs_so_far[drug] += self.graph.node[x]["duration"]
-
-            tmp_capital -= self.graph.node[x]["cost"]
-            i+=1
+                if drugs_so_far[drug] > self.last_year:
+                    wait = drugs_so_far[drug]
+                else:
+                    wait = self.last_year
 
 
-        if self.ant_id == 2000000:
-            print tmp_capital
+
+            self.position_to_year[i] =  wait
+            drugs_so_far[drug] = self.position_to_year[i] + self.graph.node[stage]["duration"]
+
+
+
+        if self.ant_id == 20222:
             print 
             print self.solution.path
             # what year does this stage start in
@@ -102,7 +117,7 @@ class Ant():
                 i+=1
             except:
                 pass
-        if self.ant_id == 20000000:
+        if self.ant_id == 20222:
             print generated_per_year
             print spent_per_year
             print 
@@ -119,12 +134,23 @@ class Ant():
             self.substracted[i] = generated_per_year[i] + spent_per_year[i]
             i +=1
 
+        self.merged_glob = merged
         self.generated = generated_per_year
-        if self.ant_id == 2000000:
+
+        if self.ant_id == 202222:
             print merged
             print self.substracted
 
             print "--------------------"
+
+        self.last_year = 0
+
+        if sum(generated_per_year) != 0 and Ant.print_id == -1:
+            Ant.print_id = self.ant_id
+            
+        self.drugs_so_far = drugs_so_far
+
+
     def get_weight(self):
         return self.total_weight
 
@@ -132,26 +158,85 @@ class Ant():
         neigh = self.graph.neighbors(self.curr_node)
         sanitized = []
 
-        for x in neigh:
-            if x not in self.solution.path and x not in self.unavailable:
-                #TEST FOR EMPTY NODE{X} => node[x] = {}
-                if self.graph.node[x]['cost'] + self.total_weight <= self.capital:
-                    sanitized.append(x)
 
-        for x in neigh:
-            if x not in self.solution.path and x not in self.unavailable:
-                i = 0 
-                if (len(sanitized) == 0 or (len(sanitized) == 1 and "food" in sanitized)):
-                    available = self.capital - sum(self.substracted)
-                   
-                    while (self.substracted[i] < 1) and i< 10:
-                        i+=1
+        if self.substracted[0] * -1 > self.capital + 3000:
+            raw_input("Enter your name: " + str(Ant.print_id))
 
-              
-                if self.graph.node[x]["cost"] < self.substracted[i]: 
-                    sanitized.append(x)
-                    self.extra.append(x)
-                    self.last_year = i
+
+        """for x in neigh:
+                                    if x not in self.solution.path and x not in self.unavailable:
+                                        #TEST FOR EMPTY NODE{X} => node[x] = {}
+                                        if self.graph.node[x]['cost'] + self.total_weight <= self.capital:
+                                            sanitized.append(x)
+                        
+                                for x in neigh:
+                                    if x not in self.solution.path and x not in self.unavailable:
+                                        i = 0 
+                                        if (len(sanitized) == 0 or (len(sanitized) == 1 and "food" in sanitized)):
+                                            available = self.capital - sum(self.substracted)
+                                           
+                                            while (self.substracted[i] < 1) and i < 10:
+                                                i+=1
+                        
+                                      
+                                        if self.graph.node[x]["cost"] < self.substracted[i]: 
+                                            sanitized.append(x)
+                                            self.extra.append(x)
+                                            self.last_year = i"""
+
+        next = True
+        i = 0 
+        while next and i < 10:
+            sanitized = []
+            for x in neigh:
+                if x not in self.solution.path and x not in self.unavailable:
+                    #TEST FOR EMPTY NODE{X} => node[x] = {}
+                    cost = self.graph.node[x]["cost"]
+
+
+                    if self.ant_id == Ant.print_id:
+                        print "-------------------------------------------------------------------------------------"
+                        print "Cost: \t" + str(cost)
+                        print "Path: \t" + str(self.solution.path)
+                        print "Position: \t" + str(self.position_to_year)
+                        print "Substracted: \t" + str(self.substracted)
+                        print "Generated: \t" + str(self.generated)
+                        print 
+                        print "Merged: \t" + str(self.merged_glob)
+
+                        print "I ("+ str(i) +"): " 
+                        
+                    tmp_merged = self.merged_glob[i:]
+
+                    if self.ant_id == Ant.print_id: 
+                        print "tmp_merged trimmed: \t" + str(tmp_merged)
+
+                    tmp_merged = [a - cost for a in tmp_merged]
+                    if self.ant_id == Ant.print_id: 
+                        print "tmp_merged - cost: \t" + str(tmp_merged)
+                        print "Merged again: \t" + str(self.merged_glob)
+
+                    negative = sum(1 for n in tmp_merged if n < 0)
+
+                    if negative == 0:
+                        sanitized.append(x)
+
+
+            if (len(sanitized) == 0 or (len(sanitized) == 1 and "food" in sanitized)):
+                i+=1
+            else:
+                self.last_year = i
+                self.extra = sanitized
+                next = False
+
+            if self.ant_id == Ant.print_id and not next:
+                print "=================================================================================================="
+                print "I: \t" + str(i) 
+                print "Bool: \t" + str(next)
+                print "=================================================================================================="
+
+
+        
 
         return sanitized
 
