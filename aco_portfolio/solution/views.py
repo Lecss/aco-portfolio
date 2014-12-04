@@ -11,7 +11,7 @@ def get_solution(request):
 	graph_wrapper = GraphWrapper(drugs)
 
 	algo_session = MinMax(graph_wrapper)
-	algo_session.run(100, 100, portfolio.duration)
+	algo_session.run(100, 1000, portfolio.duration)
 	
 	context = {}
 	context['graph'] = graph_wrapper.get_serialized_graph()

@@ -12,7 +12,6 @@ class MinMax(ACO):
         self.wrapper = graph_wrapper
         self.ants = []
         self.initialize_pheromones(0.1)
-        
         self.best_solution = Solution()
 
     def run(self, iter_no, ants_no, portfolio_duration):
@@ -22,7 +21,10 @@ class MinMax(ACO):
             for ant in self.ants:
                 move_to = self.choose_next_node(ant)
 
-        
+                if move_to is None:
+                    self.terminate_ant(ant, portfolio_duration)
+                    continue
+                    
                 if move_to is "food":
                     ant.move_next(move_to, self.get_complete_drugs(ant.solution.path))
                     self.terminate_ant(ant, portfolio_duration)
@@ -33,8 +35,16 @@ class MinMax(ACO):
 
 
     def terminate_ant(self, ant, portfolio_duration):
+
+        if len(ant.solution.path) > 250:
+            print ant.solution.path
+            print ant.merged_glob
+            print ant.substracted
+            print ant.position_to_year
+            print "------------------------"
+
         if "food" in ant.solution.path:
-            new = self.path_expected_value(ant.solution.path, portfolio_duration)
+            new = self.path_expected_value(ant, portfolio_duration)
             #new += ant.generated
             
             if new > self.best_solution.value:
@@ -42,22 +52,23 @@ class MinMax(ACO):
                 self.best_solution.path = ant.solution.path
                 self.update_pheromones()
                 
-                if ant.ant_id == 200000:
-                    print "----------------------- best solution"
-                    print self.best_solution.path
-                    #print self.best_solution.value
-                    #print (self.get_complete_drugs(ant.solution.path)["complete"]).keys()
-                    
-                    print 
-                    print ant.generated
-                    print ant.merged_glob
-                    print ant.substracted
-                    print ant.position_to_year
+                #if ant.ant_id == 200000:
+                print "--------------------------------------------------------------- best solution"
+                print self.best_solution.path
+                print new
+                #print self.best_solution.value
+                #print (self.get_complete_drugs(ant.solution.path)["complete"]).keys()
+                
+                print 
+                print ant.generated
+                print ant.merged_glob
+                print ant.substracted
+                print ant.position_to_year
 
         self.ants.remove(ant)
         self.initialize_ants(1)
 
-    def drug_expected_value(self, drug_key, stages, portfolio_duration):
+    def drug_expected_value(self, drug_key, stages, portfolio_duration, ant):
         accum_pass= 1
         accum_cost = 0
         accum_time = 0
@@ -66,23 +77,33 @@ class MinMax(ACO):
         last_s_key = 0;
         for s_key, stage in stages.iteritems():
             accum_cost += -1 * stage["cost"] 
-            accum_time += stage["duration"]
             expected_value += accum_cost * stage["prob"]
 
             last_s_key = s_key
 
-        expected_value +=  stages[last_s_key]["fail"] * stages[last_s_key]["prob"] * (accum_cost + (self.wrapper.profit_year[drug_key] * (portfolio_duration - accum_time)))
+        years_until_end = portfolio_duration - ant.drugs_so_far[drug_key]
+        expected_value +=  stages[last_s_key]["fail"] * stages[last_s_key]["prob"] * (accum_cost + (self.wrapper.profit_year[drug_key] * years_until_end))
+
+        if len(ant.solution.path) > 25:
+            print "***********************************************************"
+            print ant.merged_glob
+            print ant.drugs_so_far[drug_key]
+            print str(accum_cost) + ":" + str(sum(ant.substracted))
+            print expected_value
+            print "=========================================================="
+
+
         return expected_value
 
-    def path_expected_value(self, path, portfolio_duration):
-
+    def path_expected_value(self, ant, portfolio_duration):
+        path = ant.solution.path
         new_drugs = self.get_complete_drugs(path)
         complete = new_drugs["complete"]
         incomplete = new_drugs["incomplete"]
         expected_value = 0
 
         for key, val in complete.iteritems():
-            expected_value += self.drug_expected_value(key,val, portfolio_duration)
+            expected_value += self.drug_expected_value(key,val, portfolio_duration, ant)
 
         for x in incomplete:
             expected_value -= self.G.node[x]["cost"]
@@ -143,6 +164,8 @@ class MinMax(ACO):
         rand = random.random()
         sum_p = 0
 
+        if len(neighbours) == 0:
+            return None
         # make sure the food is last chosen
         if len(neighbours) > 1 and "food" in neighbours:
             neighbours.remove("food")
