@@ -28,22 +28,48 @@ class Ant():
         self.extra = []
         self.last_year = 0
 
+        self.not_active = []
         self.drugs_so_far = {}
         self.position_to_year = [0]
 
 
+        self.populate_inactive()
         self.move_next(wrapper.nest, {"complete": {}, "incomplete": []})
         
-        
+    
+    def populate_inactive(self):
+
+        for x in self.graph.nodes():
+
+            node = self.graph.node[x]
+
+            if node["active"] != True:
+                self.not_active.append(x)
+
+
+
+
     def move_next(self, node, complete):
         self.unavailable.add(self.curr_node)
         self.solution.update_path(node)
         self.curr_node = node
         self.total_weight += self.graph.node[self.curr_node]['cost']
 
+        self.make_active(self.curr_node)
         #print complete
         self.update_time(complete['complete'])
 
+    def make_active(self,node):
+        
+        if node is not "food" and node is not "nest":
+            i = int(node[1:]) + 1
+
+            next_node = str(node[0]) + str(i)
+
+            if next_node in self.not_active:
+                self.not_active.remove(next_node)
+
+         
 
     def update_time(self, complete):
         tmp_capital = self.capital 
@@ -151,7 +177,7 @@ class Ant():
             sanitized = []
 
             for x in neigh:
-                if x not in self.solution.path and x not in self.unavailable:
+                if x not in self.solution.path and x not in self.unavailable and x not in self.not_active:
                     #TEST FOR EMPTY NODE{X} => node[x] = {}
                     cost = self.graph.node[x]["cost"]
 
@@ -180,7 +206,8 @@ class Ant():
 
                     negative = sum(1 for n in tmp_merged if n < 0)
 
-                    if negative == 0:
+                    
+                    if negative == 0 :
                         sanitized.append(x)
 
 

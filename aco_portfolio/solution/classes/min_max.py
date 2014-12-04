@@ -84,13 +84,13 @@ class MinMax(ACO):
         years_until_end = portfolio_duration - ant.drugs_so_far[drug_key]
         expected_value +=  stages[last_s_key]["fail"] * stages[last_s_key]["prob"] * (accum_cost + (self.wrapper.profit_year[drug_key] * years_until_end))
 
-        if len(ant.solution.path) > 25:
-            print "***********************************************************"
-            print ant.merged_glob
-            print ant.drugs_so_far[drug_key]
-            print str(accum_cost) + ":" + str(sum(ant.substracted))
-            print expected_value
-            print "=========================================================="
+        """ if len(ant.solution.path) > 25:
+                                 print "***********************************************************"
+                                 print ant.merged_glob
+                                 print ant.drugs_so_far[drug_key]
+                                 print str(accum_cost) + ":" + str(sum(ant.substracted))
+                                 print expected_value
+                                 print "==========================================================" """
 
 
         return expected_value

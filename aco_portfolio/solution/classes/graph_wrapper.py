@@ -30,6 +30,11 @@ class GraphWrapper():
                 stage_info["duration"] = stage.duration
                 stage_info["fail"] = stage.fail
 
+                if count is 1:
+                    stage_info["active"] = True
+                else:
+                    stage_info["active"] = False
+                
                 result[drug.name][count] = stage_info
                 count += 1
 
@@ -53,10 +58,10 @@ class GraphWrapper():
     def add_nodes(self, g):
         for drug in self.drugs:
             for key, val in self.drugs[drug].iteritems():
-                g.add_node(drug + str(key), cost=val["cost"], duration=val["duration"])
+                g.add_node(drug + str(key), cost=val["cost"], duration=val["duration"], active=val["active"])
 
-        g.add_node(self.food, cost=0, duration=0)
-        g.add_node(self.nest, cost=0, duration=0)
+        g.add_node(self.food, cost=0, duration=0, active=True)
+        g.add_node(self.nest, cost=0, duration=0, active = True)
 
     def add_edges(self, g):
         for n in g.nodes():
