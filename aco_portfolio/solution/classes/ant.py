@@ -131,10 +131,7 @@ class Ant():
                 i+=1
             except:
                 pass
-        if self.ant_id == 20222:
-            print generated_per_year
-            print spent_per_year
-            print 
+        
 
         merged = [0] * 11
        

@@ -1,31 +1,158 @@
 {% load staticfiles %}
-
-<html>
+<html ng-app="portfolio">
 <head>
 	<title>ACO Portfolio</title>
-	<style></style>
+	
+	
+		<script src="{% static "css/style_home.css"%}"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular-resource.js"></script>
+
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+
+	<style>
+		.nav{ border-bottom:2px solid black; padding:.5em ; color:white;}
+
+		.nav h2{ margin:5px 0; font-size: 19px;font-weight: 300; display:inline-block; }
+		.drug{ padding: 10px 0px; padding:.2em; width: 100%; border-bottom:1px solid #444; margin:2px; height:8em;}
+		.drugs { max-height:95%; overflow:auto; border-right:2px solid black;}
+
+		#submit_form { position:fixed; bottom:0; width:15%; padding:.6em 0;width: 16%;border-radius: 0;}
+		#drug_form { padding-bottom: 3em;}
+		body { background: rgb(31, 31, 31);}
+
+		.drug  span { font-size:12px; color: #555; display: inline-block;}
+		.drug:hover {background:rgb(28,28,28);}
+		.drug h4 { display:inline; color: #fafafa; font-size:14px;}
+
+		.drug h3 { text-align: center; margin-top: 5px; color:#999; font-weight:100; font-size:39px;}
+		.stages{}
+
+		.carousel-indicators { bottom:-11px; }
+		.carousel-indicators li { width:10px; height:10px;}
+		.carousel-indicators .active { width: 11px; height: 11px}
+		.carousel-inner { height:100%;}
+
+
+		@media screen and (min-width: 768px){
+			.carousel-control .glyphicon-chevron-left, .carousel-control .glyphicon-chevron-right, .carousel-control .icon-prev, .carousel-control .icon-next {
+				width: 30px;
+				height: 30px;
+				margin-top: -10px;
+				font-size: 20px;
+			}
+		}
+
+		.stage_details { display:inline-block; font-size:12px; min-width: 19%;}
+	</style>
 </head>
 
-<body>
-	<h2>Portfolio Name: {{portfolio.name}} </h2>
-	{{drugs}}
-	<form id="drug_form" method="post" action="solution">
-		<input type="hidden" name="drug_list" value=""/>
-		{%for drug in drugs %}
-			{% for stage in drug.stage_set.all %}
-				<input type="text" data-stage="{{stage.name}}" data-drug="{{drug.name}}" name="{{drug.name}}-{{stage.name}}" value="Drug{{drug.name}}: Stage{{stage.name}}"/>
-			{% endfor %}
-		{% endfor %}
+<body ng-controller="PortfolioCtrl">
+	<div class='nav '>
+		<h2 style="margin-right:6.2em"><span style="color:#999">Portfolio:</span> {[ portfolio.portfolio.name ]} </h2>
 
-		<input type="hidden" name="portfolio_id" value="{{portfolio.id}}">
-		<input type="submit" />
-		{% csrf_token %}
-	</form>
+		<h2 style="font-size:13px; margin-right:2em"> <span style="color: #999">Budget:</span> 20.000</h2>
+		<h2 style="font-size:13px"> <span style="color: #999"> Time Window:</span> 12</h2>
+
+
+	</div>
+	
+	<div class="row">
+		<div class="col-md-2 drugs" style="padding-right:3px">
+			<form id="drug_form" method="post" action="solution">
+				<input type="hidden" name="drug_list" value=""/>
+				
+				<div ng-repeat="(drug_key, drug_val) in portfolio.portfolio.drugs" class="drug">
+
+					<div id="carousel{[drug_key]}" class="carousel slide" data-ride="carousel">
+					  <!-- Indicators -->
+					  <ol class="carousel-indicators">
+					    <li data-target="#carousel{[drug_key]}" data-slide-to="0" class="active"></li>
+					    <li data-target="#carousel{[drug_key]}" data-slide-to="1"></li>
+					  </ol>
+
+					  <!-- Wrapper for slides -->
+					  <div class="carousel-inner" role="listbox">
+					    <div class="item active">
+					      	<span>DRUG:</span> <h4>{[drug_key]} </h4>
+							<span style="float:right">{[ drug_val.profit_year | currency]} / year</span>
+							<br>
+							<h3>  {[ call(drug_val.stages) ]} <p style="font-size:14px">stages</p></h3>
+					    </div>
+					    <div class="item" style="padding:0.7em 0em  1em 2.5em; color:white">
+						     <div class="stages" ng-repeat="(stage_key, stage_val) in drug_val.stages">
+								<p class="stage_details" > {[ stage_key ]} </p>
+								<p class="stage_details"> <span>$</span>{[ stage_val.cost ]} </p> <span> | </span> 
+								<p class="stage_details" style="color:{[ stage_val.fail >= 0.5 ? 'green' : 'red']}"> <span>%</span>{[ stage_val.fail ]} </p> <span> | </span>
+								<p class="stage_details"> <span>mo </span> {[ stage_val.duration ]} </p>
+							</div>
+					    </div>
+					  </div>
+
+					  <!-- Controls -->
+					  <a class="left carousel-control" href="#carousel{[drug_key]}" role="button" data-slide="prev">
+					    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+					    <span class="sr-only">Previous</span>
+					  </a>
+					  <a class="right carousel-control" href="#carousel{[drug_key]}" role="button" data-slide="next">
+					    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+					    <span class="sr-only">Next</span>
+					  </a>
+					</div>
+				</div>
+				<input type="hidden" name="portfolio_id" value="{{portfolio.id}}">
+				{% csrf_token %}
+			</form>
+			<button type="submit" id="submit_form" ng-click="get_results()" class="btn btn-primary"/>Submit </button>
+		</div>
+
+		<div class="col-md-10">
+			{[ graph ]}
+		</div> 
+	</div>
+
+
+
+
+
+
+	
 
 
 	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+	<script>
+		var app = angular.module('portfolio', ['ngResource'])
+		
+		app.controller("PortfolioCtrl", function($scope, $resource) {
+
+			var Portfolio = $resource('/portfolio/');
+			var Solution = $resource('/solution/')
+			var Graph = $resource('/solution/get_graph')
 
 
+			$scope.portfolio = Portfolio.get()
+
+			$scope.solution = {}
+			$scope.graph = {}
+
+			$scope.call = function(val){
+				return Object.keys(val).length
+			}
+
+			$scope.get_results = function(){
+				
+				$scope.graph = Graph.get({portfolio_id : 1 })
+				$scope.solution = Solution.get({portfolio_id : 1 })
+			}
+		})
+
+		app.config(function($interpolateProvider) {
+			 $interpolateProvider.startSymbol('{[');
+		 	$interpolateProvider.endSymbol(']}');
+	 	});
+	</script>
 	
 </body>
 </hmtl>

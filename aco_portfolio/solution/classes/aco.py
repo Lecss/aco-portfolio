@@ -12,7 +12,6 @@ class ACO():
 
 	def __init__(self):
 		self.G = None
-		self.best_solution = Solution()
 		self.ants = []
 		
 

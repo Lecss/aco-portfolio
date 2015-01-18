@@ -8,8 +8,8 @@ from sets import Set
 
 class MinMax(ACO):
     def __init__(self, graph_wrapper):
-        self.G = graph_wrapper.get_graph()
         self.wrapper = graph_wrapper
+        self.G = self.wrapper.get_graph()
         self.ants = []
         self.initialize_pheromones(0.1)
         self.best_solution = Solution()
@@ -36,13 +36,6 @@ class MinMax(ACO):
 
     def terminate_ant(self, ant, portfolio_duration):
 
-        if len(ant.solution.path) > 250:
-            print ant.solution.path
-            print ant.merged_glob
-            print ant.substracted
-            print ant.position_to_year
-            print "------------------------"
-
         if "food" in ant.solution.path:
             new = self.path_expected_value(ant, portfolio_duration)
             #new += ant.generated
@@ -60,10 +53,10 @@ class MinMax(ACO):
                 #print (self.get_complete_drugs(ant.solution.path)["complete"]).keys()
                 
                 print 
-                print ant.generated
-                print ant.merged_glob
-                print ant.substracted
-                print ant.position_to_year
+                print "Generated:\t" + str(ant.generated)
+                print "Mearged:\t" +  str(ant.merged_glob)
+                print "Spent:\t\t" + str(ant.substracted)
+                print "When:\t\t" + str(ant.position_to_year)
 
         self.ants.remove(ant)
         self.initialize_ants(1)
@@ -149,7 +142,8 @@ class MinMax(ACO):
 
         for edge in self.G.edges():
             best = 0
-            if self.G[edge[0]][edge[1]] in solution.path:
+
+            if edge[0] in solution.path and edge[1] in solution.path:
                 best = 1 / solution.value
 
             ph_value = (1 - ACO.p) * self.G[edge[0]][edge[1]]["ph"] + best
