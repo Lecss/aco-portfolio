@@ -7,33 +7,28 @@ from solution import Solution
 from sets import Set
 
 class MinMax(ACO):
-    def __init__(self, graph_wrapper):
+    def __init__(self, graph_wrapper, portfolio):
         self.wrapper = graph_wrapper
         self.G = self.wrapper.get_graph()
         self.ants = []
         self.initialize_pheromones(0.1)
         self.best_solution = Solution()
+        self.portfolio = portfolio
+        self.iteration = 0
 
-    def run(self, iter_no, ants_no, portfolio_duration):
+    def run(self, iter_no, ants_no):
         self.initialize_ants(ants_no)
+        portfolio_duration = self.portfolio.model.duration
 
         for x in range(0, iter_no):
             for ant in self.ants:
                 move_to = self.choose_next_node(ant)
-
-                if move_to is None:
-                    self.terminate_ant(ant, portfolio_duration)
-                    continue
+                ant.move_next(move_to, self.get_complete_drugs(ant.solution.path))
                     
                 if move_to is "food":
-                    ant.move_next(move_to, self.get_complete_drugs(ant.solution.path))
                     self.terminate_ant(ant, portfolio_duration)
-                else:
-                    ant.move_next(move_to, self.get_complete_drugs(ant.solution.path))
-
             self.update_pheromones()
-
-        print self.best_solution.path
+            self.iteration +=1
         return self.G
 
 
@@ -41,24 +36,11 @@ class MinMax(ACO):
 
         if "food" in ant.solution.path:
             new = self.path_expected_value(ant, portfolio_duration)
-            #new += ant.generated
-
-            if ant.ant_id == 20: 
-
-                print ant.solution.path
-                print new 
-                print
-                print "Generated:\t" + str(ant.generated)
-                print "Mearged:\t" +  str(ant.merged_glob)
-                print "Spent:\t\t" + str(ant.substracted)
-                print "When:\t\t" + str(ant.position_to_year)
 
             if new > self.best_solution.value:
                 self.best_solution.value = new
                 self.best_solution.path = ant.solution.path
                 
-                
-                #if ant.ant_id == 200000:
                 print "--------------------------------------------------------------- best solution"
                 print self.best_solution.path
                 print new
@@ -72,12 +54,11 @@ class MinMax(ACO):
                 print "When:\t\t" + str(ant.position_to_year)
 
         self.ants.remove(ant)
-        self.initialize_ants(1)
+        #self.initialize_ants(1)
 
     def drug_expected_value(self, drug_key, stages, portfolio_duration, ant):
         accum_pass= 1
         accum_cost = 0
-        accum_time = 0
         expected_value = 0
 
         last_s_key = 0;
@@ -87,19 +68,12 @@ class MinMax(ACO):
 
             last_s_key = s_key
 
-        years_until_end = portfolio_duration - ant.drugs_so_far[drug_key]
-        expected_value +=  stages[last_s_key]["fail"] * stages[last_s_key]["prob"] * (accum_cost + (self.wrapper.profit_year[drug_key] * years_until_end))
+        years_until_end = portfolio_duration+1 - ant.drugs_so_far[drug_key]
 
-        """ if len(ant.solution.path) > 25:
-                                 print "***********************************************************"
-                                 print ant.merged_glob
-                                 print ant.drugs_so_far[drug_key]
-                                 print str(accum_cost) + ":" + str(sum(ant.substracted))
-                                 print expected_value
-                                 print "==========================================================" """
-
+        expected_value +=  accum_cost + (stages[last_s_key]["fail"] * stages[last_s_key]["prob"] * self.wrapper.profit_year[drug_key] * years_until_end )
 
         return expected_value
+
 
     def path_expected_value(self, ant, portfolio_duration):
         path = ant.solution.path
@@ -143,7 +117,7 @@ class MinMax(ACO):
 
     def initialize_ants(self, ants_no):
         for x in range(ants_no):
-            ant = Ant(self.wrapper)
+            ant = Ant(self.wrapper, self.portfolio)
             self.ants.append(ant)
 
     def initialize_pheromones(self, value=0.1):
@@ -171,11 +145,9 @@ class MinMax(ACO):
         rand = random.random()
         sum_p = 0
 
-        if len(neighbours) == 0:
-            return None
         # make sure the food is last chosen
         if len(neighbours) > 1 and "food" in neighbours:
-            if rand > 0.4:
+            if rand > 0.1:
                 neighbours.remove("food")
             else:
                 return "food"
@@ -189,6 +161,11 @@ class MinMax(ACO):
             sum_p += tau
 
 
+        if sum_p == 0:
+            print "++++++++++++++++++++++"
+            print neighbours
+            return neighbours[0]
+            print "++++++++++++++++++++++"
         max_tau = 0
         max_node = None
 
@@ -197,12 +174,6 @@ class MinMax(ACO):
                 max_node = node
                 max_tau = self.G[ant.curr_node][node]["tau"] / sum_p
 
-        
-        if ant.ant_id is 20:
-            print str(max_tau) +  ":" + str(max_node)
-            print neighbours
-            print "--------"
-          
         return max_node
 
     def get_heuristic(self, to_node):
@@ -217,24 +188,19 @@ class MinMax(ACO):
 
         value = 0 
         total_cost = 0
+        
         i = 0 
         total_duration = 0 
         for k,v in current_drug.iteritems():
             total_cost += v['cost'] * v["prob"]
-            total_duration += v['duration']
+            total_duration += v['duration'] 
             i+= 1
 
         total_cost = self.wrapper.profit_year[current_drug_key] * current_drug[i]['prob'] - total_cost
 
-        #print total_cost
-
-
-
-        if self.G.node[to_node]['cost'] == 0.0:
-            return 0
-
-        niu = total_cost / total_duration
-        return niu
+        #print total_
+        niu = (total_cost)/ total_duration 
+        return random.randint(0,1000)
 
 
 

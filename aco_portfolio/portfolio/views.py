@@ -46,12 +46,14 @@ def get_home_data(portfolio, drugs):
 	result = { 'portfolio': {
 					'name': "",
 					'budget': "",
-					'drugs': {}
+					'drugs': {},
+					'duration': ""
 		}	
 	}
 
 	result['portfolio']['name'] = portfolio.name
 	result['portfolio']['budget'] = portfolio.budget
+	result['portfolio']['duration'] = portfolio.duration
 
 	for drug in drugs: 
 		d = {'profit_year' : drug.profit_year, 'stages': {}}

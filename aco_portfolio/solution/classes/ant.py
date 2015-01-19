@@ -8,29 +8,37 @@ class Ant():
     ant_id = 0
     print_id = -1
 
-    def __init__(self, wrapper):
+    def __init__(self, wrapper, portfolio):
         self.solution = Solution()
         self.curr_node = None
         self.ant_id = Ant.ant_id
-        self.wrapper = wrapper
         Ant.ant_id += 1
 
+        self.portfolio = portfolio
+        self.wrapper = wrapper
+        
+
         self.graph = wrapper.get_graph()
+
+        self.LEN = self.portfolio.model.duration
+
         self.unavailable = Set([])
         self.total_weight = 0
-        self.time_invested =  0;
+       
 
-        self.capital = 10000
-        self.generated = [0]*11
-        self.substracted = [0] * 11
+        self.capital = self.portfolio.model.budget
 
-        self.merged_glob = [self.capital] * 11
+
+        self.generated = [0]* self.LEN
+        self.substracted = [0] * self.LEN
+
+        self.merged_glob = [self.capital] * self.LEN
         self.extra = []
         self.last_year = 0
 
         self.not_active = []
         self.drugs_so_far = {}
-        self.position_to_year = [0]
+        self.position_to_year = [1]
 
 
         self.populate_inactive()
@@ -38,32 +46,28 @@ class Ant():
         
     
     def populate_inactive(self):
-
         for x in self.graph.nodes():
-
             node = self.graph.node[x]
 
             if node["active"] != True:
                 self.not_active.append(x)
 
 
-
-
     def move_next(self, node, complete):
         self.unavailable.add(self.curr_node)
-        self.solution.update_path(node)
-        self.curr_node = node
-        self.total_weight += self.graph.node[self.curr_node]['cost']
-
-        self.make_active(self.curr_node)
-        #print complete
+        self.update_curr_node(node)
         self.update_time(complete['complete'])
 
-    def make_active(self,node):
-        
+
+    def update_curr_node(self, node):
+        self.curr_node = node
+        self.solution.update_path(node)
+        self.total_weight += self.graph.node[self.curr_node]['cost']
+        self.enable_next_node(self.curr_node)
+
+    def enable_next_node(self,node):
         if node is not "food" and node is not "nest":
             i = int(node[1:]) + 1
-
             next_node = str(node[0]) + str(i)
 
             if next_node in self.not_active:
@@ -72,74 +76,77 @@ class Ant():
          
 
     def update_time(self, complete):
-        tmp_capital = self.capital 
-        generated_per_year = [0] * 11
-        spent_per_year = [0] * 11
+        
+        #empty arrays for capital generated each year and spend each year
+        generated_per_year = [0] * self.LEN
+        spent_per_year = [0] * self.LEN
 
-
+        #array for mapping the investment year with each stage
         diff = len(self.solution.path) - len(self.position_to_year)
 
         while(diff != 0):
-            self.position_to_year.append(0)
+            self.position_to_year.append(1)
             diff -= 1
 
+        # based on completed drugs - calculate how much each generated per year and when
         for d, d_val in complete.iteritems():
-            total_duration = 1
+            total_duration = 0
             for s, s_val in d_val.iteritems():
                 total_duration += s_val["duration"]
 
-            while total_duration < 11:
+            while total_duration < self.LEN:
                 #print self.wrapper.profit_year
                 generated_per_year[total_duration] += self.wrapper.profit_year[str(d)]
                 total_duration += 1
 
+
+        # eg. {u'B': 2, u'L': 4} and then {u'B': 5, u'L': 4}
+        # keeps track on how much time passed since a drug started accounting for any gaps/break/wait in between too
         drugs_so_far = self.drugs_so_far
 
-        i = len(self.solution.path)-1
-        stage = self.solution.path[i]
+        # only for the last added stage to the solution as everything else is computed already
+        last_added_stage = self.solution.path[-1]
 
-        if stage is not "nest" and stage is not "food":
-            drug = stage[:-1]
+        if last_added_stage is not "nest" and last_added_stage is not "food":
+            drug = last_added_stage[:-1]
 
             if drug not in drugs_so_far.keys():
                 drugs_so_far[drug] = 0
 
-            wait = 0
-
-            if stage in self.extra:            
-                if drugs_so_far[drug] > self.last_year:
-                    wait = drugs_so_far[drug]
-                else:
-                    wait = self.last_year
+                      
+            if drugs_so_far[drug] > self.last_year:
+                wait = drugs_so_far[drug]
+            else:
+                wait = self.last_year
 
 
             # if total time exceeds portfolio time remove this from the solution path 
-            # - to do : remove all stages related to this drug as drug not possible 
-            if wait + self.graph.node[stage]["duration"]< 11:
-                self.position_to_year[i] =  wait
-                drugs_so_far[drug] = self.position_to_year[i] + self.graph.node[stage]["duration"]
+            # - to do : remove all last_added_stages related to this drug as drug not possible 
+            if wait + self.graph.node[last_added_stage]["duration"] < self.LEN:
+                self.position_to_year[-1] =  wait
+                drugs_so_far[drug] = self.position_to_year[-1] + self.graph.node[last_added_stage]["duration"]
             else:
-                self.solution.path.remove(stage)
-                self.unavailable.add(stage)
+                self.solution.path.remove(last_added_stage)
+                self.unavailable.add(last_added_stage)
                 self.position_to_year.pop()
 
-        i =0
-        for y in self.position_to_year:
-            try:
-                stage = self.solution.path[i]
-                spent_per_year[y] -= self.graph.node[stage]["cost"]
-                i+=1
-            except:
-                pass
         
+        #update the amount of money spend in each year
+        for i in range(1, len(self.position_to_year)):
+            stage = self.solution.path[i]
+            position = self.position_to_year[i] - 1
 
-        merged = [0] * 11
-       
+            spent_per_year[position] -=  self.graph.node[stage]["cost"]
+
+                
+    
+
+        merged = [0] * self.LEN
+        self.substracted = [0] * self.LEN
+
         running_total = self.capital
-        
         i = 0
-        self.substracted = [0] * 11
-        for x in range(0,11):
+        for x in range(0,self.LEN):
             merged[i] = running_total + spent_per_year[i] + generated_per_year[i]
             running_total = merged[i]
 
@@ -149,10 +156,6 @@ class Ant():
         self.merged_glob = merged
         self.generated = generated_per_year
 
-
-        if sum(generated_per_year) != 0 and Ant.print_id == -1:
-            pass
-            #Ant.print_id = self.ant_id
             
         self.drugs_so_far = drugs_so_far
 
@@ -164,51 +167,27 @@ class Ant():
         neigh = self.graph.neighbors(self.curr_node)
         sanitized = []
 
-        if self.substracted[0] * -1 > self.capital + 3000:
-            raw_input("Enter your name: " + str(Ant.print_id))
-
-
         next = True
-        i = 0 
-        while next and i < 10:
+        i = 1
+        while next and i <= self.LEN:
             sanitized = []
 
             for x in neigh:
                 if x not in self.solution.path and x not in self.unavailable and x not in self.not_active:
                     #TEST FOR EMPTY NODE{X} => node[x] = {}
                     cost = self.graph.node[x]["cost"]
-
-
-                    """if self.ant_id == Ant.print_id:
-                                                                                    print "-------------------------------------------------------------------------------------"
-                                                                                    print "Cost: \t" + str(cost)
-                                                                                    print "Path: \t" + str(self.solution.path)
-                                                                                    print "Position: \t" + str(self.position_to_year)
-                                                                                    print "Substracted: \t" + str(self.substracted)
-                                                                                    print "Generated: \t" + str(self.generated)
-                                                                                    print 
-                                                                                    print "Merged: \t" + str(self.merged_glob)
-                                                            
-                                                                                    print "I ("+ str(i) +"): " """
                         
-                    tmp_merged = self.merged_glob[i:]
-
-                    """if self.ant_id == Ant.print_id: 
-                                                                                    print "tmp_merged trimmed: \t" + str(tmp_merged)"""
-
+                    #check if current cost exceeds the available capital.
+                    tmp_merged = self.merged_glob[i-1:]
                     tmp_merged = [a - cost for a in tmp_merged]
-                    """if self.ant_id == Ant.print_id: 
-                                                                                    print "tmp_merged - cost: \t" + str(tmp_merged)
-                                                                                    print "Merged again: \t" + str(self.merged_glob)"""
-
                     negative = sum(1 for n in tmp_merged if n < 0)
-
                     
                     if negative == 0 :
                         sanitized.append(x)
 
-
-            if (len(sanitized) == 0 or (len(sanitized) == 1 and "food" in sanitized)):
+            # means for this year (year i) no stage was respecting the above constraint 
+            # so we go to the next year where extra generated capital might be available
+            if (len(sanitized) == 1 and "food" in sanitized):
                 i+=1
             else:
                 self.last_year = i

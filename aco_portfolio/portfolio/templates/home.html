@@ -4,7 +4,7 @@
 	<title>ACO Portfolio</title>
 	
 	
-		<script src="{% static "css/style_home.css"%}"></script>
+	<script src="{% static "css/style_home.css"%}"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular-resource.js"></script>
 
@@ -51,8 +51,8 @@
 	<div class='nav '>
 		<h2 style="margin-right:6.2em"><span style="color:#999">Portfolio:</span> {[ portfolio.portfolio.name ]} </h2>
 
-		<h2 style="font-size:13px; margin-right:2em"> <span style="color: #999">Budget:</span> 20.000</h2>
-		<h2 style="font-size:13px"> <span style="color: #999"> Time Window:</span> 12</h2>
+		<h2 style="font-size:13px; margin-right:2em"> <span style="color: #999">Budget:</span> {[portfolio.portfolio.budget | currency]}</h2>
+		<h2 style="font-size:13px"> <span style="color: #999"> Time Window:</span> {[ portfolio.portfolio.duration ]}</h2>
 
 
 	</div>
