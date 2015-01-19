@@ -31,6 +31,9 @@ class MinMax(ACO):
                 else:
                     ant.move_next(move_to, self.get_complete_drugs(ant.solution.path))
 
+            self.update_pheromones()
+
+        print self.best_solution.path
         return self.G
 
 
@@ -39,11 +42,21 @@ class MinMax(ACO):
         if "food" in ant.solution.path:
             new = self.path_expected_value(ant, portfolio_duration)
             #new += ant.generated
-            
+
+            if ant.ant_id == 20: 
+
+                print ant.solution.path
+                print new 
+                print
+                print "Generated:\t" + str(ant.generated)
+                print "Mearged:\t" +  str(ant.merged_glob)
+                print "Spent:\t\t" + str(ant.substracted)
+                print "When:\t\t" + str(ant.position_to_year)
+
             if new > self.best_solution.value:
                 self.best_solution.value = new
                 self.best_solution.path = ant.solution.path
-                self.update_pheromones()
+                
                 
                 #if ant.ant_id == 200000:
                 print "--------------------------------------------------------------- best solution"
@@ -148,8 +161,8 @@ class MinMax(ACO):
 
             ph_value = (1 - ACO.p) * self.G[edge[0]][edge[1]]["ph"] + best
 
-            if ph_value >= solution.value:
-                self.G[edge[0]][edge[1]]["ph"] = solution.value
+            if solution.value is not 0 and ph_value >=  1 / (ACO.p * solution.value):
+                self.G[edge[0]][edge[1]]["ph"] = 1 / (ACO.p * solution.value)
             else:
                 self.G[edge[0]][edge[1]]["ph"] = ph_value
 
@@ -162,7 +175,10 @@ class MinMax(ACO):
             return None
         # make sure the food is last chosen
         if len(neighbours) > 1 and "food" in neighbours:
-            neighbours.remove("food")
+            if rand > 0.4:
+                neighbours.remove("food")
+            else:
+                return "food"
         elif len(neighbours) == 1 and "food" in neighbours:
             return "food"
 
@@ -172,21 +188,52 @@ class MinMax(ACO):
             self.G.edge[ant.curr_node][node]["tau"] = tau
             sum_p += tau
 
-        for node in neighbours:
-            try:
-                if (self.G[ant.curr_node][node]["tau"] / sum_p) > rand:
-                    return node
-            except:
-                pass
 
-        rand2 = random.randint(0, (len(neighbours) - 1))
-        return neighbours[rand2]
+        max_tau = 0
+        max_node = None
+
+        for node in neighbours:
+            if self.G[ant.curr_node][node]["tau"] / sum_p >= max_tau:
+                max_node = node
+                max_tau = self.G[ant.curr_node][node]["tau"] / sum_p
+
+        
+        if ant.ant_id is 20:
+            print str(max_tau) +  ":" + str(max_node)
+            print neighbours
+            print "--------"
+          
+        return max_node
 
     def get_heuristic(self, to_node):
+        drugs = self.wrapper.get_drugs()
+        current_drug = None
+        current_drug_key = None
+
+        for x in drugs.keys():
+            if x in to_node:
+                current_drug = drugs[x]
+                current_drug_key = x
+
+        value = 0 
+        total_cost = 0
+        i = 0 
+        total_duration = 0 
+        for k,v in current_drug.iteritems():
+            total_cost += v['cost'] * v["prob"]
+            total_duration += v['duration']
+            i+= 1
+
+        total_cost = self.wrapper.profit_year[current_drug_key] * current_drug[i]['prob'] - total_cost
+
+        #print total_cost
+
+
+
         if self.G.node[to_node]['cost'] == 0.0:
             return 0
 
-        niu = 1 / self.G.node[to_node]['cost']
+        niu = total_cost / total_duration
         return niu
 
 
