@@ -27,7 +27,6 @@ class MinMax(ACO):
                     
                 if move_to is "food":
                     self.terminate_ant(ant, portfolio_duration)
-            self.update_pheromones()
             self.iteration +=1
         return self.G
 
@@ -38,6 +37,7 @@ class MinMax(ACO):
             new = self.path_expected_value(ant, portfolio_duration)
 
             if new > self.best_solution.value:
+                self.update_pheromones()
                 self.best_solution.value = new
                 self.best_solution.path = ant.solution.path
                 
@@ -125,6 +125,7 @@ class MinMax(ACO):
             self.G[edge[0]][edge[1]]["ph"] = value
 
     def update_pheromones(self):
+
         solution = self.best_solution
 
         for edge in self.G.edges():
@@ -135,10 +136,12 @@ class MinMax(ACO):
 
             ph_value = (1 - ACO.p) * self.G[edge[0]][edge[1]]["ph"] + best
 
-            if solution.value is not 0 and ph_value >=  1 / (ACO.p * solution.value):
-                self.G[edge[0]][edge[1]]["ph"] = 1 / (ACO.p * solution.value)
+            if solution.value is not 0 and ph_value >=  1:
+                self.G[edge[0]][edge[1]]["ph"] = 1
             else:
                 self.G[edge[0]][edge[1]]["ph"] = ph_value
+
+            
 
     def choose_next_node(self, ant):
         neighbours = ant.get_neighbours()
@@ -156,24 +159,22 @@ class MinMax(ACO):
 
         for node in neighbours:
             ph = self.G[ant.curr_node][node]['ph']
+
             tau = math.pow(ph, ACO.alpha) * math.pow(self.get_heuristic(node), ACO.betha)
             self.G.edge[ant.curr_node][node]["tau"] = tau
             sum_p += tau
 
 
-        if sum_p == 0:
-            print "++++++++++++++++++++++"
-            print neighbours
-            return neighbours[0]
-            print "++++++++++++++++++++++"
         max_tau = 0
         max_node = None
 
-        for node in neighbours:
-            if self.G[ant.curr_node][node]["tau"] / sum_p >= max_tau:
-                max_node = node
-                max_tau = self.G[ant.curr_node][node]["tau"] / sum_p
-
+        if self.iteration > 600: 
+            for node in neighbours:
+                if self.G[ant.curr_node][node]["tau"] / sum_p >= max_tau:
+                    max_node = node
+                    max_tau = self.G[ant.curr_node][node]["tau"] / sum_p
+        else:
+            return neighbours[random.randint(0, len(neighbours) -1)]
         return max_node
 
     def get_heuristic(self, to_node):
@@ -198,8 +199,16 @@ class MinMax(ACO):
 
         total_cost = self.wrapper.profit_year[current_drug_key] * current_drug[i]['prob'] - total_cost
 
-        #print total_
-        niu = (total_cost)/ total_duration 
+        r = random.random()
+        niu = (total_cost) * (1.0/total_duration)
+        
+        i= int(to_node[1:])
+
+        niu = current_drug[i]['prob'] * i * niu
+
+
+        return niu 
+        
         return random.randint(0,1000)
 
 
