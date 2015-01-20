@@ -3,12 +3,10 @@
 <head>
 	<title>ACO Portfolio</title>
 	
-	
-	<script src="{% static "css/style_home.css"%}"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular.js"></script>
+	<script src="{% static "angular.min.js" %}"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular-resource.js"></script>
 
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="{% static "bootstrap.min.css" %}">
 
 	<style>
 		.nav{ border-bottom:2px solid black; padding:.5em ; color:white;}
@@ -119,8 +117,8 @@
 	
 
 
-	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+	<script src="{% static "jquery1.11.0.js" %}"></script>
+	<script src="{% static "bootstrap.js" %}"></script>
 
 	<script>
 		var app = angular.module('portfolio', ['ngResource'])

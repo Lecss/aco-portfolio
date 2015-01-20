@@ -18,7 +18,7 @@ def get_solution(request):
 	print port_ctrl.model.budget
 
 	algo_session = MinMax(graph_wrapper, port_ctrl)
-	algo_session.run(100, 2000)
+	algo_session.run(100, 3000)
 	
 	context = algo_session.best_solution.path
 
