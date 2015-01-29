@@ -5,6 +5,8 @@ import random
 import math
 from solution import Solution
 from sets import Set
+import time
+
 
 class MinMax(ACO):
     def __init__(self, graph_wrapper, portfolio):
@@ -15,6 +17,8 @@ class MinMax(ACO):
         self.best_solution = Solution()
         self.portfolio = portfolio
         self.iteration = 0
+        self.solutions_found = []
+        self.start_time = time.time()
 
     def run(self, iter_no, ants_no):
         self.initialize_ants(ants_no)
@@ -33,6 +37,16 @@ class MinMax(ACO):
 
     def terminate_ant(self, ant, portfolio_duration):
 
+        remove_unfeasible_stages =  self.get_complete_drugs(ant.solution.path)["incomplete"]
+
+        for x in remove_unfeasible_stages:
+            index = ant.solution.path.index(x)
+
+            ant.solution.path.pop(index)
+            ant.position_to_year.pop(index)
+
+        ant.update_time(self.get_complete_drugs(ant.solution.path)["complete"])
+
         if "food" in ant.solution.path:
             new = self.path_expected_value(ant, portfolio_duration)
 
@@ -41,6 +55,7 @@ class MinMax(ACO):
                 self.best_solution.value = new
                 self.best_solution.path = ant.solution.path
                 
+
                 print "--------------------------------------------------------------- best solution"
                 print self.best_solution.path
                 print new
@@ -53,8 +68,17 @@ class MinMax(ACO):
                 print "Spent:\t\t" + str(ant.substracted)
                 print "When:\t\t" + str(ant.position_to_year)
 
+                self.best_solution.value = new
+                self.best_solution.ant = ant
+
+                ant.solution.value = new
+                ant.time = time.time() - self.start_time
+
+                self.solutions_found.append(ant.solution)
+
         self.ants.remove(ant)
-        #self.initialize_ants(1)
+    
+
 
     def drug_expected_value(self, drug_key, stages, portfolio_duration, ant):
         accum_pass= 1
@@ -168,7 +192,7 @@ class MinMax(ACO):
         max_tau = 0
         max_node = None
 
-        if self.iteration > 600: 
+        if self.iteration > 700: 
             for node in neighbours:
                 if self.G[ant.curr_node][node]["tau"] / sum_p >= max_tau:
                     max_node = node

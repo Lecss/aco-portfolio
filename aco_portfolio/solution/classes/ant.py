@@ -10,6 +10,7 @@ class Ant():
 
     def __init__(self, wrapper, portfolio):
         self.solution = Solution()
+        self.solution.ant = self
         self.curr_node = None
         self.ant_id = Ant.ant_id
         Ant.ant_id += 1
@@ -138,8 +139,7 @@ class Ant():
 
             spent_per_year[position] -=  self.graph.node[stage]["cost"]
 
-                
-    
+
 
         merged = [0] * self.LEN
         self.substracted = [0] * self.LEN

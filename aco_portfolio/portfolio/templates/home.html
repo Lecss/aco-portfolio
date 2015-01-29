@@ -2,20 +2,31 @@
 <html ng-app="portfolio">
 <head>
 	<title>ACO Portfolio</title>
-	
-	<script src="{% static "angular.min.js" %}"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular-resource.js"></script>
+	<script src="http://code.highcharts.com/highcharts.js"></script>
+	<script src="{% static "exporting.js" %}"></script>
+	<script type="text/javascript" src="{% static "themes/dark-unica_custom.js" %}"></script>
+	<script type="text/javascript" src="https://rawgit.com/pablojim/highcharts-ng/v0.0.1/src/directives/highcharts-ng.js"></script>
+	<script src="{% static "bootstrap.js" %}"></script>
 
 	<link rel="stylesheet" href="{% static "bootstrap.min.css" %}">
+	<link rel="stylesheet" href="{% static "loader.css" %}">
 
 	<style>
-		.nav{ border-bottom:2px solid black; padding:.5em ; color:white;}
+
+		/*
+			.sol line color: #0A0A0A;
+	
+		*/
+		.nav{ border-bottom:4px solid black; padding:.5em ; color:white;}
 
 		.nav h2{ margin:5px 0; font-size: 19px;font-weight: 300; display:inline-block; }
-		.drug{ padding: 10px 0px; padding:.2em; width: 100%; border-bottom:1px solid #444; margin:2px; height:8em;}
-		.drugs { max-height:95%; overflow:auto; border-right:2px solid black;}
+		.drug{ padding: 10px 0px; padding:0em; width: 100%; border-bottom:1px solid #0A0A0A; margin:2px; height:8em;}
+		.drugs { max-height:95%; overflow:auto; overflow-x:hidden; border-right:4px solid black;}
 
-		#submit_form { position:fixed; bottom:0; width:15%; padding:.6em 0;width: 16%;border-radius: 0;}
+		#submit_form { position:fixed; bottom:0; width:15%; padding:.6em 0;width: 16%;border-radius: 0; z-index:200;}
 		#drug_form { padding-bottom: 3em;}
 		body { background: rgb(31, 31, 31);}
 
@@ -23,7 +34,7 @@
 		.drug:hover {background:rgb(28,28,28);}
 		.drug h4 { display:inline; color: #fafafa; font-size:14px;}
 
-		.drug h3 { text-align: center; margin-top: 5px; color:#999; font-weight:100; font-size:39px;}
+		.drug h3 { text-align: center; margin-top: 4px; margin-bottom:4px; color:#999; font-weight:100; font-size:39px;}
 		.stages{}
 
 		.carousel-indicators { bottom:-11px; }
@@ -31,6 +42,8 @@
 		.carousel-indicators .active { width: 11px; height: 11px}
 		.carousel-inner { height:100%;}
 
+		.result_details .col-md* { background:black;}
+		.result_details > .row { border-bottom:4px solid black;}
 
 		@media screen and (min-width: 768px){
 			.carousel-control .glyphicon-chevron-left, .carousel-control .glyphicon-chevron-right, .carousel-control .icon-prev, .carousel-control .icon-next {
@@ -41,7 +54,40 @@
 			}
 		}
 
+		.carousel-control .icon-next, .carousel-control .glyphicon-chevron-right {
+			right: 30%;
+		}
+
+		.carousel-control .icon-next, .carousel-control .glyphicon-chevron-left {
+			right: 38%;
+		}
+
 		.stage_details { display:inline-block; font-size:12px; min-width: 19%;}
+
+
+		.edit{ border:none; background:black; border-top: 1px solid #333; width:50%; display:inline-block; opacity:0; margin-top:-4px;
+			 -webkit-transition: all .3s; /* For Safari 3.1 to 6.0 */
+    		transition: all .3s;
+
+    		font-size:12px;
+		}
+
+		.drug:hover .edit { opacity: 1;}
+
+		.edit:hover { color:white;}
+		
+		h2.widget_title { font-family: "Unica One"; font-size:20px; color: rgb(224, 224, 227); margin-top:10px; text-transform:uppercase;}
+
+		.sol {border-bottom:1px solid #0A0A0A; padding: .4em 0 .4em 0; }
+
+		.sol:hover { background: #333; cursor:pointer;}
+
+		p.info {font-size:12px; color:#666;}
+
+		.glyphicon-time {color:rgb(182, 44, 44);top:0px; display:inline;}
+
+		
+
 	</style>
 </head>
 
@@ -51,8 +97,6 @@
 
 		<h2 style="font-size:13px; margin-right:2em"> <span style="color: #999">Budget:</span> {[portfolio.portfolio.budget | currency]}</h2>
 		<h2 style="font-size:13px"> <span style="color: #999"> Time Window:</span> {[ portfolio.portfolio.duration ]}</h2>
-
-
 	</div>
 	
 	<div class="row">
@@ -64,10 +108,7 @@
 
 					<div id="carousel{[drug_key]}" class="carousel slide" data-ride="carousel">
 					  <!-- Indicators -->
-					  <ol class="carousel-indicators">
-					    <li data-target="#carousel{[drug_key]}" data-slide-to="0" class="active"></li>
-					    <li data-target="#carousel{[drug_key]}" data-slide-to="1"></li>
-					  </ol>
+					
 
 					  <!-- Wrapper for slides -->
 					  <div class="carousel-inner" role="listbox">
@@ -76,8 +117,10 @@
 							<span style="float:right">{[ drug_val.profit_year | currency]} / year</span>
 							<br>
 							<h3>  {[ call(drug_val.stages) ]} <p style="font-size:14px">stages</p></h3>
+
+							<button class="edit" style="border-right:1px solid #333">DELETE</button><button class="edit">EDIT</button>
 					    </div>
-					    <div class="item" style="padding:0.7em 0em  1em 2.5em; color:white">
+					    <div class="item" style="padding:0.7em 0em  1em 2.7em; color:white">
 						     <div class="stages" ng-repeat="(stage_key, stage_val) in drug_val.stages">
 								<p class="stage_details" > {[ stage_key ]} </p>
 								<p class="stage_details"> <span>$</span>{[ stage_val.cost ]} </p> <span> | </span> 
@@ -104,24 +147,48 @@
 			<button type="submit" id="submit_form" ng-click="get_results()" class="btn btn-primary"/>Submit </button>
 		</div>
 
-		<div class="col-md-10">
-			{[ graph ]}
+		<div class="col-md-10 result_details">
+			<div class="row">
+				<div class="col-md-3" style="border-right:4px solid black; height: 28.6em;overflow: auto;">
+					<div class="loaderWrap" ng-class="show == 1 ? 'loading' : '' ">
+						<div class="loader">Loading...</div>
+					</div>
+
+					<h2 class="widget_title">Solutions </h2>
+					<div class="row" style="height:6em; padding: 1.2em;">
+						<div class="col-md-12 sol"  ng-repeat="sol in solution.data">
+							<div class="row">
+								<div class="col-md-8"><p class="pull-left info">Expected profit</p></div>
+								
+								<div class="col-md-4" style='padding-left:2em'>
+									<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+									<p class="info" style="text-align:right; color:white; display:inline; float:right;font-weight:200 ">{[ sol.running_time | number : 2]} sec</p></div>
+								<div class="col-md-12"><h2 style="font-weight:100; margin-top:-11px; color:white;font-size:20px "><span style="color:#666">$</span> {[ sol.value | number : 2]} </h2></div>
+							</div>
+						</div>
+						<div ng-show="show == -1">No solution data. Submit to calculate!</div>
+					</div>
+				</div>
+
+				<div class="col-md-3">
+					<div class="loaderWrap" ng-class="show == 1 ? 'loading' : '' ">
+						<div class="loader">Loading...</div>
+					</div>
+					<h2 class="widget_title">Solution Details </h2>
+					<div ng-show="show == -1">No solution data. Submit to calculate!</div>
+				</div>
+				<div ng-controller="myctrl" >  
+					<highchart class="col-md-6 graph" style="padding-left:0px; border-left:4px solid black;border-right:10px solid black" id="chart1" series="chart.series" title="chart.title" options="chart.options" ></highchart>
+				</div>
+				
+			</div>
 		</div> 
 	</div>
-
-
-
-
-
-
+	<script src="http://code.angularjs.org/1.2.4/angular-animate.min.js"></script>
 	
 
-
-	<script src="{% static "jquery1.11.0.js" %}"></script>
-	<script src="{% static "bootstrap.js" %}"></script>
-
 	<script>
-		var app = angular.module('portfolio', ['ngResource'])
+		var app = angular.module('portfolio', ['ngResource', "highcharts-ng", "ngAnimate"])
 		
 		app.controller("PortfolioCtrl", function($scope, $resource) {
 
@@ -129,11 +196,11 @@
 			var Solution = $resource('/solution/')
 			var Graph = $resource('/solution/get_graph')
 
-
 			$scope.portfolio = Portfolio.get()
-
-			$scope.solution = {}
+			$scope.solution = {data : []}
 			$scope.graph = {}
+
+			$scope.show = -1
 
 			$scope.call = function(val){
 				return Object.keys(val).length
@@ -141,16 +208,118 @@
 
 			$scope.get_results = function(){
 				
+				$scope.show = 1
+
 				$scope.graph = Graph.get({portfolio_id : 1 })
-				$scope.solution = Solution.get({portfolio_id : 1 })
+				$scope.solution = Solution.get({portfolio_id : 1 },function(data){
+					
+					$scope.solution = data
+			
+					$scope.remove_demo_data()
+					$scope.process_results(data.data)
+					$scope.show = 0
+
+					setTimeout(function(){$scope.$apply()}, 100)
+				})
 			}
+
+			$scope.process_results = function(data){
+
+				$scope.chart.series = []
+				
+				angular.forEach(data, function(val){
+					$scope.chart.series.push({
+						data: val.budget_over_year
+					})
+				})	
+
+				$scope.show = 0
+			}
+
+
+			$scope.remove_demo_data = function(){
+				for(var i=0; i < $scope.chart.series.length ; i++)
+				{	
+					if($scope.chart.series[i].name == "demo")
+					{	
+						$scope.chart.series.splice(i,1)
+					}
+				}
+			}
+
+			$scope.chart = {
+			        options: {
+			            chart: {
+			                type: 'spline'
+			            },
+				        xAxis: {
+
+				            categories: new Array($scope.portfolio.duration)
+				        },
+				        yAxis: {
+				            title: {
+				                text: 'Budget'
+				            },
+				            plotLines: [{
+				                value: 0,
+				                width: 1,
+				                color: '#808080'
+				            }]
+				        }
+			        },
+			        series: [
+			        	{ name:"INITIAL BUDGET", data : [0,0,0,0,0,0]}
+			        ],
+			        title: {
+			            text: 'Budget over the year',
+			            x:23,
+			            align:'left'
+			        }
+			}
+
+
 		})
 
 		app.config(function($interpolateProvider) {
 			 $interpolateProvider.startSymbol('{[');
 		 	$interpolateProvider.endSymbol(']}');
 	 	});
+
+
+
+
+		app.controller('myctrl', function ($scope) {
+
+			    $scope.addPoints = function () {
+			        var seriesArray = $scope.chart.series
+			        var rndIdx = Math.floor(Math.random() * seriesArray.length);
+			        seriesArray[rndIdx].data = seriesArray[rndIdx].data.concat([1, 10, 20])
+			    };
+
+			    $scope.addSeries = function () {
+			        var rnd = []
+			        for (var i = 0; i < 10; i++) {
+			            rnd.push(Math.floor(Math.random() * 20) + 1)
+			        }
+			        $scope.chart.series.push({
+			            data: rnd
+			        })
+			    }
+
+			    $scope.removeRandomSeries = function () {
+			        var seriesArray = $scope.chart.series
+			        var rndIdx = Math.floor(Math.random() * seriesArray.length);
+			        seriesArray.splice(rndIdx, 1)
+			    }
+
+			    $scope.options = {
+			        type: 'line'
+			    }
+
+			});
+
 	</script>
+
 	
 </body>
 </hmtl>
