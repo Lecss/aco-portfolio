@@ -1,0 +1,7 @@
+django-toolbelt
+coverage==3.7.1
+decorator==3.4.0
+networkx==1.9.1
+selenium==2.44.0
+wsgiref==0.1.2
+mock==1.0.1
