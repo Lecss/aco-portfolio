@@ -1,15 +1,17 @@
 {% load staticfiles %}
+<!DOCTYPE html>
 <html ng-app="portfolio">
 <head>
 	<title>ACO Portfolio</title>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular-resource.js"></script>
 	<script src="http://code.highcharts.com/highcharts.js"></script>
 	<script src="{% static "exporting.js" %}"></script>
 	<script type="text/javascript" src="{% static "themes/dark-unica_custom.js" %}"></script>
 	<script type="text/javascript" src="https://rawgit.com/pablojim/highcharts-ng/v0.0.1/src/directives/highcharts-ng.js"></script>
 	<script src="{% static "bootstrap.js" %}"></script>
+	<script src="http://code.angularjs.org/1.2.4/angular-animate.min.js"></script>
 
 	<link rel="stylesheet" href="{% static "bootstrap.min.css" %}">
 	<link rel="stylesheet" href="{% static "loader.css" %}">
@@ -78,7 +80,7 @@
 		
 		h2.widget_title { font-family: "Unica One"; font-size:20px; color: rgb(224, 224, 227); margin-top:10px; text-transform:uppercase;}
 
-		.sol {border-bottom:1px solid #0A0A0A; padding: .4em 0 .4em 0; }
+		.sol {border-bottom:1px solid #0A0A0A; padding: .4em ; }
 
 		.sol:hover { background: #333; cursor:pointer;}
 
@@ -86,8 +88,7 @@
 
 		.glyphicon-time {color:rgb(182, 44, 44);top:0px; display:inline;}
 
-		
-
+		.glyphicon-calendar { color:#247c02;}
 	</style>
 </head>
 
@@ -104,7 +105,7 @@
 			<form id="drug_form" method="post" action="solution">
 				<input type="hidden" name="drug_list" value=""/>
 				
-				<div ng-repeat="(drug_key, drug_val) in portfolio.portfolio.drugs" class="drug">
+				<div ng-repeat="(drug_key, drug_val) in portfolio.drugs" class="drug">
 
 					<div id="carousel{[drug_key]}" class="carousel slide" data-ride="carousel">
 					  <!-- Indicators -->
@@ -154,10 +155,10 @@
 						<div class="loader">Loading...</div>
 					</div>
 
-					<h2 class="widget_title">Solutions </h2>
+					<h2 class="widget_title" ng-click="select_solution(1)">Solutions </h2>
 					<div class="row" style="height:6em; padding: 1.2em;">
-						<div class="col-md-12 sol"  ng-repeat="sol in solution.data">
-							<div class="row">
+						<div class="col-md-12 sol"  ng-repeat="sol in solution.data" ng-click="select_solution($index)">
+							<div class="row"> 
 								<div class="col-md-8"><p class="pull-left info">Expected profit</p></div>
 								
 								<div class="col-md-4" style='padding-left:2em'>
@@ -166,7 +167,7 @@
 								<div class="col-md-12"><h2 style="font-weight:100; margin-top:-11px; color:white;font-size:20px "><span style="color:#666">$</span> {[ sol.value | number : 2]} </h2></div>
 							</div>
 						</div>
-						<div ng-show="show == -1">No solution data. Submit to calculate!</div>
+						<div ng-show="show==-1">No solution data. Submit to calculate!</div>
 					</div>
 				</div>
 
@@ -174,7 +175,19 @@
 					<div class="loaderWrap" ng-class="show == 1 ? 'loading' : '' ">
 						<div class="loader">Loading...</div>
 					</div>
-					<h2 class="widget_title">Solution Details </h2>
+					<h2 class="widget_title">INVEST STRATEGY </h2>
+					<!--<div class="col-md-12 sol"  ng-repeat="sol in selected_solution.path"> -->
+					<div class="col-md-12 sol"  ng-repeat="year in range(1, portfolio.duration-2)" ng-show="show == 0 && invested_per_year($index) != ''">
+							<div class="row">
+								<div class="col-md-7">
+									<h2 style="font-weight:200; color:white;font-size:18px; margin: 5px 0"> {[ invested_per_year($index) ]}</h2>
+								</div>
+								<div class="col-md-4" style="float:right">
+									<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+									<p class="info" style="text-align:right; color:white; display:inline; float:right;font-weight:200 ">{[2015 + $index -1]} - {[2015 + $index]}</p>
+								</div>
+							</div>
+						</div>
 					<div ng-show="show == -1">No solution data. Submit to calculate!</div>
 				</div>
 				<div ng-controller="myctrl" >  
@@ -184,26 +197,66 @@
 			</div>
 		</div> 
 	</div>
-	<script src="http://code.angularjs.org/1.2.4/angular-animate.min.js"></script>
+	
 	
 
 	<script>
-		var app = angular.module('portfolio', ['ngResource', "highcharts-ng", "ngAnimate"])
+(function() {
+		var app = angular.module('portfolio', ['ngResource', "highcharts-ng"])
 		
-		app.controller("PortfolioCtrl", function($scope, $resource) {
+		app.controller("PortfolioCtrl", function($scope, $resource, $http) {
 
-			var Portfolio = $resource('/portfolio/');
+			//var Portfolio = $resource('/portfolio/');
 			var Solution = $resource('/solution/')
 			var Graph = $resource('/solution/get_graph')
 
-			$scope.portfolio = Portfolio.get()
+			$scope.portfolio = {}//Portfolio.get()
 			$scope.solution = {data : []}
 			$scope.graph = {}
+			$selected_solution = {}
 
 			$scope.show = -1
 
+
+			$http.get('/portfolio/').
+				  success(function(data, status, headers, config) {
+				    $scope.portfolio = data.portfolio
+			})
+
+			$scope.xx = true
+
 			$scope.call = function(val){
 				return Object.keys(val).length
+			}
+
+			$scope.range = function(min,max,step){
+				step = step || 1;
+			    var input = [];
+			    for (var i = min; i <= max; i += step) input.push(i);
+			    return input;
+			}
+
+			$scope.invested_per_year = function(year){
+				var string = ""
+				
+				if ($scope.selected_solution == undefined || $scope.selected_solution == {})
+				{
+					return string
+				}
+
+				for(var i=1; i < $scope.selected_solution.path.length - 1; i++){
+					
+					if($scope.selected_solution.per_year[i] == year)
+					{
+						string += $scope.selected_solution.path[i]
+						console.log(string)
+
+						if (i != $scope.selected_solution.path.length-2)
+						string += " , "
+					}
+				}
+
+				return string.slice(0,-2);
 			}
 
 			$scope.get_results = function(){
@@ -217,14 +270,18 @@
 			
 					$scope.remove_demo_data()
 					$scope.process_results(data.data)
+					$scope.selected_solution = data["0"]
 					$scope.show = 0
 
 					setTimeout(function(){$scope.$apply()}, 100)
 				})
 			}
 
-			$scope.process_results = function(data){
+			$scope.select_solution = function(i){
+				$scope.selected_solution = $scope.solution.data[i]
+			}
 
+			$scope.process_results = function(data){
 				$scope.chart.series = []
 				
 				angular.forEach(data, function(val){
@@ -232,8 +289,6 @@
 						data: val.budget_over_year
 					})
 				})	
-
-				$scope.show = 0
 			}
 
 
@@ -317,7 +372,7 @@
 			    }
 
 			});
-
+})();
 	</script>
 
 	
