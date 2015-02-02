@@ -20,9 +20,12 @@ class MinMax(ACO):
         self.solutions_found = []
         self.start_time = time.time()
 
+        self.in_ = 0
+        self.out_ = 0
+
     def run(self, iter_no, ants_no):
         self.initialize_ants(ants_no)
-        portfolio_duration = self.portfolio.model.duration
+        portfolio_duration = 20#self.portfolio.model.duration
 
         for x in range(0, iter_no):
             for ant in self.ants:
@@ -37,19 +40,28 @@ class MinMax(ACO):
 
     def terminate_ant(self, ant, portfolio_duration):
 
+        #print ant.solution.path
         remove_unfeasible_stages =  self.get_complete_drugs(ant.solution.path)["incomplete"]
-
+       
         for x in remove_unfeasible_stages:
             index = ant.solution.path.index(x)
 
             ant.solution.path.pop(index)
             ant.position_to_year.pop(index)
 
+        #print ant.solution.path
+        #print  "----------"
+
+        if len(ant.solution.path) is 2 and "food" in ant.solution.path:
+            self.ants.remove(ant)
+            return
+
         ant.update_time(self.get_complete_drugs(ant.solution.path)["complete"])
 
         if "food" in ant.solution.path:
             new = self.path_expected_value(ant, portfolio_duration)
 
+            #print new
             if new > self.best_solution.value:
                 self.update_pheromones()
                 self.best_solution.value = new
@@ -156,15 +168,15 @@ class MinMax(ACO):
             best = 0
 
             if edge[0] in solution.path and edge[1] in solution.path:
-                best = 1 / solution.value
+                index = solution.path.index(edge[1])
+                best = 1 / solution.value - index / len(solution.path)
 
             ph_value = (1 - ACO.p) * self.G[edge[0]][edge[1]]["ph"] + best
 
-            if solution.value is not 0 and ph_value >=  1:
-                self.G[edge[0]][edge[1]]["ph"] = 1
+            if solution.value is not 0 and ph_value >=  2:
+                self.G[edge[0]][edge[1]]["ph"] = 2
             else:
                 self.G[edge[0]][edge[1]]["ph"] = ph_value
-
             
 
     def choose_next_node(self, ant):
@@ -174,10 +186,8 @@ class MinMax(ACO):
 
         # make sure the food is last chosen
         if len(neighbours) > 1 and "food" in neighbours:
-            if rand > 0.1:
                 neighbours.remove("food")
-            else:
-                return "food"
+           
         elif len(neighbours) == 1 and "food" in neighbours:
             return "food"
 
@@ -192,12 +202,14 @@ class MinMax(ACO):
         max_tau = 0
         max_node = None
 
-        if self.iteration > 700: 
+        if self.iteration > 10 and sum_p > 0: 
+            self.in_ += 1
             for node in neighbours:
                 if self.G[ant.curr_node][node]["tau"] / sum_p >= max_tau:
                     max_node = node
                     max_tau = self.G[ant.curr_node][node]["tau"] / sum_p
         else:
+            self.out_ += 1
             return neighbours[random.randint(0, len(neighbours) -1)]
         return max_node
 

@@ -32,7 +32,7 @@ def update_drug(request):
 	pass
 
 def portfolio_data(request):
-	portfolio = Portfolio.objects.get(pk=1)
+	portfolio = Portfolio.objects.get(pk=3)
 	drugs = portfolio.drug_set.all()
 
 	context = get_home_data(portfolio, drugs)

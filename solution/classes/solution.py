@@ -4,7 +4,7 @@ class Solution():
 
 	def __init__(self):
 		self.path = []
-		self.value = 0
+		self.value = -100000
 		self.ant = None
 		self.time = 0
 		

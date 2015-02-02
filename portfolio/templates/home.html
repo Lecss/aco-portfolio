@@ -22,15 +22,16 @@
 			.sol line color: #0A0A0A;
 	
 		*/
+
 		.nav{ border-bottom:4px solid black; padding:.5em ; color:white;}
 
 		.nav h2{ margin:5px 0; font-size: 19px;font-weight: 300; display:inline-block; }
 		.drug{ padding: 10px 0px; padding:0em; width: 100%; border-bottom:1px solid #0A0A0A; margin:2px; height:8em;}
-		.drugs { max-height:95%; overflow:auto; overflow-x:hidden; border-right:4px solid black;}
+		.drugs { overflow:auto; border-right:4px solid black;height:65em;}
 
 		#submit_form { position:fixed; bottom:0; width:15%; padding:.6em 0;width: 16%;border-radius: 0; z-index:200;}
 		#drug_form { padding-bottom: 3em;}
-		body { background: rgb(31, 31, 31);}
+		body { background: rgb(31, 31, 31); overflow-x:hidden;}
 
 		.drug  span { font-size:12px; color: #555; display: inline-block;}
 		.drug:hover {background:rgb(28,28,28);}
@@ -89,15 +90,21 @@
 		.glyphicon-time {color:rgb(182, 44, 44);top:0px; display:inline;}
 
 		.glyphicon-calendar { color:#247c02;}
+
+		.solution-strategy { 
+			border-right: 4px solid black;
+			height: 28.6em;
+			overflow: auto;
+		}
 	</style>
 </head>
 
 <body ng-controller="PortfolioCtrl">
 	<div class='nav '>
-		<h2 style="margin-right:6.2em"><span style="color:#999">Portfolio:</span> {[ portfolio.portfolio.name ]} </h2>
+		<h2 style="margin-right:6.2em"><span style="color:#999">Portfolio:</span> {[ portfolio.name ]} </h2>
 
-		<h2 style="font-size:13px; margin-right:2em"> <span style="color: #999">Budget:</span> {[portfolio.portfolio.budget | currency]}</h2>
-		<h2 style="font-size:13px"> <span style="color: #999"> Time Window:</span> {[ portfolio.portfolio.duration ]}</h2>
+		<h2 style="font-size:13px; margin-right:2em"> <span style="color: #999">Budget:</span> {[portfolio.budget | currency]}</h2>
+		<h2 style="font-size:13px"> <span style="color: #999"> Time Window:</span> {[ portfolio.duration ]}</h2>
 	</div>
 	
 	<div class="row">
@@ -150,7 +157,7 @@
 
 		<div class="col-md-10 result_details">
 			<div class="row">
-				<div class="col-md-3" style="border-right:4px solid black; height: 28.6em;overflow: auto;">
+				<div class="col-md-3 soution-strategy" style="border-right:4px solid black; height: 28.6em;overflow: auto;">
 					<div class="loaderWrap" ng-class="show == 1 ? 'loading' : '' ">
 						<div class="loader">Loading...</div>
 					</div>
@@ -164,14 +171,14 @@
 								<div class="col-md-4" style='padding-left:2em'>
 									<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
 									<p class="info" style="text-align:right; color:white; display:inline; float:right;font-weight:200 ">{[ sol.running_time | number : 2]} sec</p></div>
-								<div class="col-md-12"><h2 style="font-weight:100; margin-top:-11px; color:white;font-size:20px "><span style="color:#666">$</span> {[ sol.value | number : 2]} </h2></div>
+								<div class="col-md-12"><h2 style="font-weight:100; margin-top:-11px; color:white;font-size:20px "><span style="color:#666">$</span> {[ sol.value | number : 2]} | {[sum(sol.per_year)]}</h2></div>
 							</div>
 						</div>
 						<div ng-show="show==-1">No solution data. Submit to calculate!</div>
 					</div>
 				</div>
 
-				<div class="col-md-3">
+				<div class="col-md-3 solution-strategy">
 					<div class="loaderWrap" ng-class="show == 1 ? 'loading' : '' ">
 						<div class="loader">Loading...</div>
 					</div>
@@ -180,7 +187,7 @@
 					<div class="col-md-12 sol"  ng-repeat="year in range(1, portfolio.duration-1)" ng-show="show == 0 && invested_per_year($index) != ''">
 							<div class="row">
 								<div class="col-md-7">
-									<h2 style="font-weight:200; color:white;font-size:18px; margin: 5px 0"> {[ invested_per_year($index) ]}</h2>
+									<h2 style="font-weight:200; color:white;font-size:16px; margin: 5px 0"> {[ invested_per_year($index) ]}</h2>
 								</div>
 								<div class="col-md-4" style="float:right">
 									<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
@@ -234,6 +241,10 @@
 			    return input;
 			}
 
+			$scope.sum = function(arr){
+				return eval(arr.join('+'))
+			}
+
 			$scope.invested_per_year = function(year){
 				var string = ""
 				
@@ -255,12 +266,10 @@
 						}
 					}
 				}
-
 				return string.slice(0,-2);
 			}
 
 			$scope.get_results = function(){
-				
 				$scope.show = 1
 
 				$scope.graph = Graph.get({portfolio_id : 1 })
@@ -331,16 +340,12 @@
 			            align:'left'
 			        }
 			}
-
-
 		})
 
 		app.config(function($interpolateProvider) {
 			 $interpolateProvider.startSymbol('{[');
 		 	$interpolateProvider.endSymbol(']}');
 	 	});
-
-
 
 
 		app.controller('myctrl', function ($scope) {
