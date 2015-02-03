@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from classes.graph_wrapper import GraphWrapper
-from classes.min_max import MinMax
+from classes.min_max2 import MinMax
 from classes.portfolio import PortfolioCtrl
 from portfolio.models import Portfolio, Drug, Stage
 from django.http import HttpResponse,HttpResponseBadRequest
@@ -38,12 +38,12 @@ def get_solution(request):
 	port_ctrl = PortfolioCtrl(portfolio)
 
 	algo_session = MinMax(graph_wrapper, port_ctrl)
-	algo_session.run(200, 200)
+	algo_session.run(10, 100)
 	context = {}
 	context['data'] = {}
-	
+
 	solutions = algo_session.solutions_found
-	
+
 	c = 0
 	for sol in reversed(solutions):
 

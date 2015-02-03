@@ -8,6 +8,7 @@ class GraphWrapper():
         self.food = "food"
         self.nest = "nest"
         self.drugs = self.extract_drugs_from_qset(drug_qset)
+        self.drug_stages = self.map_stage_number(drug_qset)
         self.G = self.create_graph()
         self.compute_drug_probabilities()
         self.profit_year = self.compute_profit(drug_qset)
@@ -19,6 +20,15 @@ class GraphWrapper():
             profit[drug.name] = drug.profit_year
 
         return profit
+
+    def map_stage_number(self, drug_qset):
+        drug_stage_map = {}
+        for drug in drug_qset:
+            drug_stage_map[drug.name]= len(drug.stage_set.all())
+
+        return drug_stage_map
+
+
 
     def extract_drugs_from_qset(self, drug_qset):
         result = {}

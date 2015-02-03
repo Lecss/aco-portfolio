@@ -10,20 +10,21 @@ class ACO():
 	betha = 3
 	p = 0.3
 
+	food = "food"
+	nest = "nest"
+
 	def __init__(self):
 		self.G = None
 		self.ants = []
-		
-
 
 	@abc.abstractmethod
 	def initialize_pheromones(self):
 		return
 
 	@abc.abstractmethod
-	def initialize_ants(self,number):
+	def initialize_ants(self, number):
 		return
 
 	@abc.abstractmethod
-	def run(self, iterations = 1000, ants_no = 100):
+	def run(self, iterations = 100, ants_no = 100):
 		return

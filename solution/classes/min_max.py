@@ -278,7 +278,7 @@ class MinMax(ACO):
             total_duration += v['duration'] 
             i+= 1
 
-        total_cost = self.wrapper.profit_year[current_drug_key] * current_drug[i]['prob'] - total_cost
+        total_cost = self.wrapper.profit_year[current_drug_key] * current_drug[i]['prob'] - total_cost * current_drug[i]['prob']
 
         r = random.random()
         niu = (total_cost) * (1.0/total_duration)
