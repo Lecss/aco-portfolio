@@ -25,7 +25,7 @@ class MinMax(ACO):
 
     def run(self, iter_no, ants_no):
         self.initialize_ants(ants_no)
-        portfolio_duration = 20#self.portfolio.model.duration
+        portfolio_duration = self.portfolio.model.duration
 
         for x in range(0, iter_no):
             for ant in self.ants:
@@ -169,12 +169,12 @@ class MinMax(ACO):
 
             if edge[0] in solution.path and edge[1] in solution.path:
                 index = solution.path.index(edge[1])
-                best = 1 / solution.value - index / len(solution.path)
+                best = 1 / solution.value 
 
             ph_value = (1 - ACO.p) * self.G[edge[0]][edge[1]]["ph"] + best
 
-            if solution.value is not 0 and ph_value >=  2:
-                self.G[edge[0]][edge[1]]["ph"] = 2
+            if solution.value is not 0 and ph_value >=  1:
+                self.G[edge[0]][edge[1]]["ph"] = 1
             else:
                 self.G[edge[0]][edge[1]]["ph"] = ph_value
             
@@ -183,11 +183,14 @@ class MinMax(ACO):
         neighbours = ant.get_neighbours()
         rand = random.random()
         sum_p = 0
+        fitnesses = []
 
         # make sure the food is last chosen
         if len(neighbours) > 1 and "food" in neighbours:
+            if rand > 0.1:
                 neighbours.remove("food")
-           
+            else:
+                return "food"
         elif len(neighbours) == 1 and "food" in neighbours:
             return "food"
 
@@ -195,14 +198,33 @@ class MinMax(ACO):
             ph = self.G[ant.curr_node][node]['ph']
 
             tau = math.pow(ph, ACO.alpha) * math.pow(self.get_heuristic(node), ACO.betha)
+
+            if tau < 0 :
+                print ph 
+                print self.get_heuristic(node)
+                print neighbours
+                print node
+
+                #x= 2/0
             self.G.edge[ant.curr_node][node]["tau"] = tau
             sum_p += tau
+            fitnesses.append(tau)
 
 
         max_tau = 0
         max_node = None
 
-        if self.iteration > 10 and sum_p > 0: 
+        
+        selection = self.roulette_select(neighbours, fitnesses, len(neighbours))
+        print fitnesses
+        print neighbours
+        print selection
+        print "=================="
+
+        return selection[random.randint(0,len(selection)-1)]
+        """
+        #replace this with roulette wheel selection
+        if self.iteration > 200 and sum_p > 0: 
             self.in_ += 1
             for node in neighbours:
                 if self.G[ant.curr_node][node]["tau"] / sum_p >= max_tau:
@@ -212,6 +234,29 @@ class MinMax(ACO):
             self.out_ += 1
             return neighbours[random.randint(0, len(neighbours) -1)]
         return max_node
+        """
+
+    def roulette_select(self, population, fitnesses, num):
+        """ Roulette selection, implemented according to:
+            <http://stackoverflow.com/questions/177271/roulette
+            -selection-in-genetic-algorithms/177278#177278>
+        """
+        """http://stackoverflow.com/questions/298301/roulette-wheel-selection-algorithm"""
+
+        total_fitness = float(sum(fitnesses))
+        rel_fitness = [f/total_fitness for f in fitnesses]
+        # Generate probability intervals for each individual
+        probs = [sum(rel_fitness[:i+1]) for i in range(len(rel_fitness))]
+        # Draw new population
+        new_population = []
+        for n in xrange(num):
+            r = random.random()
+            for (i, individual) in enumerate(population):
+                if r <= probs[i]:
+                    new_population.append(individual)
+                    break
+        return new_population
+
 
     def get_heuristic(self, to_node):
         drugs = self.wrapper.get_drugs()
@@ -243,7 +288,7 @@ class MinMax(ACO):
         niu = current_drug[i]['prob'] * i * niu
 
 
-        return niu 
+        #return niu 
         
         return random.randint(0,1000)
 

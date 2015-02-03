@@ -11,7 +11,7 @@ import random
 
 # Create your views here.
 def get_solution(request):
-	portfolio = Portfolio.objects.get(pk = 3)
+	portfolio = Portfolio.objects.get(pk = 1)
 	#drugs = portfolio.drug_set.filter(name__in="NSF" )
 
 	drugs = portfolio.drug_set.all()
@@ -38,12 +38,12 @@ def get_solution(request):
 	port_ctrl = PortfolioCtrl(portfolio)
 
 	algo_session = MinMax(graph_wrapper, port_ctrl)
-	algo_session.run(1000, 500)
+	algo_session.run(200, 200)
 	context = {}
 	context['data'] = {}
-
+	
 	solutions = algo_session.solutions_found
-
+	
 	c = 0
 	for sol in reversed(solutions):
 
@@ -60,9 +60,9 @@ def get_solution(request):
 		context['data'][c]=(entry)
 		c+=1
 
-	print algo_session.in_
-	print algo_session.out_
-	print "================================================="
+	#print algo_session.in_
+	#print algo_session.out_
+	#print "================================================="
 	return HttpResponse(json.dumps(context), content_type='application/json')
 
 def get_graph(request):
@@ -74,3 +74,10 @@ def get_graph(request):
 	context = graph_wrapper.get_serialized_graph()
 
 	return HttpResponse(context, content_type='application/json')
+
+
+
+
+
+
+
