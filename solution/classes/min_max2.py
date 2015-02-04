@@ -52,15 +52,10 @@ class MinMax(ACO):
 	    	solution_value = self.path_expected_value(ant.solution.path, ant.drugs_so_far)
 	    	ant.solution.value = solution_value
 	    	ant.time = time.time() - self.start_time
-	    	print ant.solution.path
-	    	print solution_value
+	    	#print ant.solution.path
+	    	#print solution_value
 	    
-	    	print "-----"
-
-	    	for sol in self.best_solution_vector:
-	    		if solution_value > sol.value:
-	    			self.best_solution_vector.append(ant.solution)
-	    			self.solutions_found.append(ant.solution)
+	    	#print "-----"
 
 	    	if len(self.best_solution_vector) < 2:
 	    		self.best_solution_vector.append(ant.solution)
@@ -75,6 +70,12 @@ class MinMax(ACO):
 	    				i = self.best_solution_vector.index(sol)
 
 	    		self.best_solution_vector.pop(i)
+
+
+	    	for sol in self.best_solution_vector:
+	    		if solution_value > sol.value:
+	    			self.best_solution_vector.append(ant.solution)
+	    			self.solutions_found.append(ant.solution)
 
     	self.ants.remove(ant)
     	self.initialize_ants(1)
@@ -130,7 +131,8 @@ class MinMax(ACO):
     def choose_next_node(self, curr_node, neighbours):
     	rand = random.random()
     	fitnesses = []
-
+    	
+    	#return neighbours[random.randint(0, len(neighbours)-1)]
     	for node in neighbours:
             ph = self.G[curr_node][node]['ph']
             tau = math.pow(ph, ACO.alpha) * math.pow(self.get_heuristic(node), ACO.betha)
@@ -141,7 +143,18 @@ class MinMax(ACO):
         return selection[random.randint(0,len(selection)-1)]
 
     def get_heuristic(self, node):
-    	return 1
+    	drug = node[:1]
+    	stage = node[1:]
+
+    	#print self.wrapper.get_drugs()[drug]
+
+    	if node is ACO.food:
+    		#return 0.0002
+    		return 0.0002
+    	niu = 1/ self.wrapper.get_drugs()[drug][int(stage)]["cost"] * int(stage) *  1/ self.wrapper.get_drugs()[drug][int(stage)]["duration"]
+    	
+    	print str(node) + ":" + str(round(niu,4))
+    	return niu
 
 
     def roulette_select(self, population, fitnesses, num):

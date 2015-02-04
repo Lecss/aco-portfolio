@@ -11,8 +11,8 @@ import random
 
 # Create your views here.
 def get_solution(request):
-	portfolio = Portfolio.objects.get(pk = 1)
-	#drugs = portfolio.drug_set.filter(name__in="NSF" )
+	portfolio = Portfolio.objects.get(pk = 3)
+	#drugs = portfolio.drug_set.filter(name__in="EHICL" )
 
 	drugs = portfolio.drug_set.all()
 
@@ -42,7 +42,7 @@ def get_solution(request):
 	context = {}
 	context['data'] = {}
 
-	solutions = algo_session.solutions_found
+	solutions = algo_session.best_solution_vector
 
 	c = 0
 	for sol in reversed(solutions):
