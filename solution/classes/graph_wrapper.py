@@ -78,6 +78,7 @@ class GraphWrapper():
                             duration= stage.duration, 
                             active= (i == 0),
                             pass_prob = stage.fail,
+                            start_stage= drug.name + str(1),
                             drug = {
                                 "name": drug.name,
                                 "profit_per_year" : drug.profit_year,

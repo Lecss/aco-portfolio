@@ -184,7 +184,7 @@
 					</div>
 					<h2 class="widget_title">INVEST STRATEGY </h2>
 					<!--<div class="col-md-12 sol"  ng-repeat="sol in selected_solution.path"> -->
-					<div class="col-md-12 sol"  ng-repeat="year in range(1, portfolio.duration-1)" ng-show="show == 0 && invested_per_year($index) != ''">
+					<div class="col-md-12 sol"  ng-repeat="year in range(1, portfolio.duration-1)" ng-show="show == 0 ">
 							<div class="row">
 								<div class="col-md-7">
 									<h2 style="font-weight:200; color:white;font-size:16px; margin: 5px 0"> {[ invested_per_year($index) ]}</h2>
@@ -246,26 +246,22 @@
 			}
 
 			$scope.invested_per_year = function(year){
-				var string = ""
+				var string = " "
 				
 				if ($scope.selected_solution == undefined || $scope.selected_solution == {})
 				{
 					return string
 				}
 
-				for(var i=0; i < $scope.selected_solution.path.length; i++){
-					
-					if($scope.selected_solution.per_year[i] == year)
-					{	
-						if (!($scope.selected_solution.path[i] == "food" || $scope.selected_solution.path[i] =="nest"))
-						{ 
-							string += $scope.selected_solution.path[i]
+				console.log(year)
+				console.log($scope.selected_solution.years[year])
+				console.log("===========")
+				angular.forEach($scope.selected_solution.years[year+1].items, function(val){
+					string += val
+					string += ' , '
+				})
 
-						//if (i != $scope.selected_solution.path.length-2)
-							string += " , "
-						}
-					}
-				}
+				
 				return string.slice(0,-2);
 			}
 

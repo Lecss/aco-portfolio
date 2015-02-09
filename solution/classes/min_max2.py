@@ -189,10 +189,6 @@ class MinMax(ACO):
             self.G.node[node]['ph'][year] = ant.solution.value
 
 
-
-
-
-
     def time_left_heuristic(self, edge, ant):
         path = ant.solution.path
         
@@ -217,20 +213,29 @@ class MinMax(ACO):
         #print time_left
         if time_left is 0:
             return 0
-            
+
         return  1 / time_left
 
     def choose_next_node(self, curr_node, ant):
         neighbours = ant.get_neighbours()
         rand = random.random()
         fitnesses = []
-        year = ant.last_year
-
+        
         # return neighbours[random.randint(0, len(neighbours)-1)]
         for node in neighbours:
             node_ph = 0
+            
+            if node is not ACO.food:
+                year = ant.get_year(node)
+
             if "ph" in self.G.node[node] and str(year) in self.G.node[node]["ph"]:
-                node_ph = 1 / self.G.node[node]['ph'][year]
+                if year < self.portfolio.model.duration:    
+                    node_ph = 1 / self.G.node[node]['ph'][year]
+                else:
+                    start_node = self.G.node[node]["start_node"]
+                    start_node = self.G.node[start_node]
+
+                    node_ph = -1
 
             ph = self.G[curr_node][node]['ph'] + node_ph
             tau = math.pow(ph, ACO.alpha) * math.pow(1, ACO.betha)

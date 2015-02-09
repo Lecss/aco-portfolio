@@ -39,7 +39,7 @@ def get_solution(request):
 
 	algo_session = MinMax(graph_wrapper, port_ctrl)
 	#algo_session.run(300, 200)
-	algo_session.run(60, 100)
+	algo_session.run(40, 100)
 	context = {}
 	context['data'] = {}
 
@@ -48,6 +48,7 @@ def get_solution(request):
 	c = 0
 	for sol in reversed(solutions):
 
+		#print sol.ant.years
 		if c > 4:
 			continue
 		entry = {}
@@ -55,13 +56,14 @@ def get_solution(request):
 		position_to_year = []
 		for p in sol.path:
 			for x in sol.ant.years:
-				if p in sol.ant.years[x]:
+				if p in sol.ant.years[x]["items"]:
 					position_to_year.append(x)
 
 
 		entry["generated"] = [sol.ant.years[x]["generated"] for x in sol.ant.years]
 		entry["path"] = sol.path
 		entry["per_year"] = position_to_year
+		entry["years"] = sol.ant.years
 		entry["budget_over_year"] = [sol.ant.years[x]["generated"] for x in sol.ant.years]
 		entry["value"] = sol.value
 		entry["running_time"] = sol.ant.time

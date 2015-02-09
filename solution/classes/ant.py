@@ -30,12 +30,14 @@ class Ant():
 
         self.so_far = {}
 
+        self.last_enabled_node = None
         self.last_year = 2
         self.move_next(wrapper.nest, {"complete": {}, "incomplete": []})
         
 
        
     def get_so_far(self, node):
+        print node
         drug_name = self.G.node[node]["drug"]["name"]
 
         if drug_name not in self.so_far:
@@ -44,11 +46,11 @@ class Ant():
         else:
             return self.so_far[drug_name]
 
-    def update_so_far(self, node):
+    def update_so_far(self, node, year):
         drug_name = self.G.node[node]["drug"]["name"]
         c= self.get_so_far(node)
 
-        self.so_far[drug_name] += self.G.node[node]["duration"]
+        self.so_far[drug_name] += self.G.node[node]["duration"] + year - 1
 
     def init_years(self):
         for x in range(1,self.p_duration+1):
@@ -75,12 +77,17 @@ class Ant():
         if node is "food" or node is "nest" or node is None:
             return
     
-        print node
+        #print node
         year = self.get_year(node)
         self.commit_year(year, node)
         
        
     def commit_year(self, year, node):
+        if year > self.p_duration:
+            print self.unavailable
+            self.not_active.append(self.last_enabled_node)
+            return
+
         entry = self.years[year]
         curr_budget = entry["budget"]
         node_cost = self.G.node[node]["cost"]
@@ -93,10 +100,10 @@ class Ant():
             #no feasible solution here so close it
             self.curr_node = "food";
             self.solution.path.append("food")
-            print "AAAAAAAAAALSLALALALALALALALALALALALALALALALALALALDSALDLSALDALSDLASLDALSDAL"
+            #print "AAAAAAAAAALSLALALALALALALALALALALALALALALALALALALDSALDLSALDALSDLASLDALSDAL"
             #x = 2/0
 
-        self.update_so_far(node)
+        self.update_so_far(node, year)
 
         #decrease available budget 
         for x in range(year, self.p_duration + 1):
@@ -107,26 +114,26 @@ class Ant():
             if self.get_so_far(node) < self.p_duration+1:
                 for x in range(self.get_so_far(node)+1, self.p_duration+1):
                     self.years[x]["generated"] += self.G.node[node]["drug"]["profit_per_year"]
-
+        """
         print node
         print self.so_far
         print "invested in year:" + str(year)
         print self.years
         print "------------------=========="
-
+        """
 
     def get_year(self, node):
-        year = 1
+        year = self.get_so_far(node) + 1
         added = False
-        min_year = self.get_so_far(node) + 1
+        
         #previous dependency constraint
        
-        for x in range(min_year, self.p_duration):
+        for x in range(year, self.p_duration):
             entry = self.years[x]
             tmp_budget = entry["budget"] + entry["generated"] - self.G.node[node]["cost"] + entry["spent"]
             
-            print "+++++++++++++++++++++++++++++"
-            print tmp_budget
+            #print "+++++++++++++++++++++++++++++"
+            #print tmp_budget
 
             if tmp_budget > 0 and not added:
                 year = x
@@ -135,11 +142,8 @@ class Ant():
             if added and tmp_budget < 0:
                 year = x + 1
 
-        print year
-
+        #print year
         #print self.so_far
-        if year < min_year:
-            year = min_year
 
         return year
 
@@ -147,18 +151,12 @@ class Ant():
         #print self.so_far
         #print "----------------------"
 
-
     def check_dependency(self,items, node):
         pass
         #budget constraint
 
 
-        
-
-
-
-
-
+    
 
     def enable_next_node(self,node):
         if node is not "food" and node is not "nest":
@@ -167,10 +165,15 @@ class Ant():
 
             if next_node in self.not_active:
                 self.not_active.remove(next_node)
+                self.last_enabled_node = next_node
 
         
     def get_neighbours(self):
         sanitized = [item for item in self.G.neighbors(self.curr_node) if item not in self.unavailable and item not in self.not_active]
+
+        """  for x in sanitized:
+                              if x is not "food"  and self.get_year(x) >= self.p_duration:
+                                  sanitized.remove(x)"""
         return sanitized
 
 
