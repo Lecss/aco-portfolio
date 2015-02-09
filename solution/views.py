@@ -53,18 +53,11 @@ def get_solution(request):
 			continue
 		entry = {}
 
-		position_to_year = []
-		for p in sol.path:
-			for x in sol.ant.years:
-				if p in sol.ant.years[x]["items"]:
-					position_to_year.append(x)
-
-
-		entry["generated"] = [sol.ant.years[x]["generated"] for x in sol.ant.years]
+		#entry["generated"] = [sol.ant.years[x]["generated"] for x in sol.ant.years]
 		entry["path"] = sol.path
-		entry["per_year"] = position_to_year
-		entry["years"] = sol.ant.years
-		entry["budget_over_year"] = [sol.ant.years[x]["generated"] for x in sol.ant.years]
+		#entry["per_year"] = position_to_year
+		#entry["years"] = sol.ant.years
+		#entry["budget_over_year"] = [sol.ant.years[x]["generated"] for x in sol.ant.years]
 		entry["value"] = sol.value
 		entry["running_time"] = sol.ant.time
 		entry["graph"] = json.loads(graph_wrapper.get_serialized_graph())
