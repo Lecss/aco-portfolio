@@ -1,12 +1,13 @@
 import networkx as nx
 from networkx.readwrite import json_graph
 import json
-
+from operator import mul
 
 class GraphWrapper():
     def __init__(self, drug_qset):
         self.food = "food"
         self.nest = "nest"
+        self.drug_qset = drug_qset
         self.drugs = self.extract_drugs_from_qset(drug_qset)
         self.drug_stages = self.map_stage_number(drug_qset)
         self.G = self.create_graph()
@@ -39,7 +40,8 @@ class GraphWrapper():
                 stage_info = {}
                 stage_info["cost"] = stage.cost
                 stage_info["duration"] = stage.duration
-                stage_info["fail"] = stage.fail
+                stage_info["succeed_prob"] = stage.fail
+                stage_info["drug"] =  {"year_profit": drug.profit_year, "name": drug.name, "duration": sum(x for x in range(0,4))}
 
                 if count is 1:
                     stage_info["active"] = True
@@ -67,9 +69,24 @@ class GraphWrapper():
         return g
 
     def add_nodes(self, g):
-        for drug in self.drugs:
-            for key, val in self.drugs[drug].iteritems():
-                g.add_node(drug + str(key), cost=val["cost"], duration=val["duration"], active=val["active"])
+        
+        for drug in self.drug_qset:
+            for (i,stage) in enumerate(drug.stage_set.all()):
+                g.add_node( drug.name + str(i+1),
+                            index = i, 
+                            cost= stage.cost, 
+                            duration= stage.duration, 
+                            active= (i == 0),
+                            pass_prob = stage.fail,
+                            drug = {
+                                "name": drug.name,
+                                "profit_per_year" : drug.profit_year,
+                                "total_duration" : sum(x.duration for x in drug.stage_set.all()),
+                                "stages_count" : len(drug.stage_set.all()),
+                                "cummulated_prob" : reduce(mul, [x.fail for x in drug.stage_set.all()])
+                            }
+                           )
+                
 
         g.add_node(self.food, cost=0, duration=0, active=True)
         g.add_node(self.nest, cost=0, duration=0, active = True)
@@ -93,7 +110,7 @@ class GraphWrapper():
                 if x is 1:
                     self.drugs[drug][x]["prob"] = 1
                 else:
-                    self.drugs[drug][x]["prob"] = prev_stage_val["prob"] * prev_stage_val["fail"]
+                    self.drugs[drug][x]["prob"] = prev_stage_val["prob"] * prev_stage_val["succeed_prob"]
 
                 prev_stage_val = self.drugs[drug][x]
 
