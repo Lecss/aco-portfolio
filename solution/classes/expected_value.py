@@ -24,7 +24,7 @@ class ExpectedValue():
 
 		#print path
 		#self.print_trace()
-		print "============"
+		#print "============"
 		return self.expected_value(path)
 
 	def add_to_year(self, stage):

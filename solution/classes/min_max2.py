@@ -94,10 +94,15 @@ class MinMax(ACO):
         pass
 
     def update_pheromones(self):
-        path = self.best_solution_vector[0].path
-        for node in self.G.nodes():
-            ph = self.G.node[node]["ph"]
-            self.G.node[node]["ph"] = max(1-ACO.p * ph, 0.5)
+        for sol in self.best_solution_vector:
+            path = sol.path
+            
+            for node in self.G.nodes():
+                ph = self.G.node[node]["ph"]
+                self.G.node[node]["ph"] = max(1-ACO.p * ph, 0.5)
+
+                if node in path:
+                    self.G.node[node]["ph"] += len(path) - path.index(node)
 
 
     def update_local_pheromones(self, ant):
@@ -108,7 +113,9 @@ class MinMax(ACO):
         fitnesses = []
 
         for node in neighbours:
-            tau = math.pow(1, ACO.alpha) * math.pow(1, ACO.betha)
+            ph = self.G.node[node]["ph"]
+
+            tau = math.pow(ph, ACO.alpha) * math.pow(1, ACO.betha)
             self.G.edge[curr_node][node]["tau"] = tau
             fitnesses.append(tau)
 

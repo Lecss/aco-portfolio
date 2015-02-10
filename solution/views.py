@@ -39,7 +39,7 @@ def get_solution(request):
 
 	algo_session = MinMax(graph_wrapper, port_ctrl)
 	#algo_session.run(300, 200)
-	algo_session.run(50, 100)
+	algo_session.run(70, 100)
 	context = {}
 	context['data'] = {}
 
