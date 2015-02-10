@@ -16,7 +16,7 @@ class Ant():
 
         self.unavailable = []
         self.not_active = []
-
+        self.populate_inactive()
         self.curr_node = None
         self.move_next(wrapper.nest)
 
@@ -42,7 +42,6 @@ class Ant():
         self.unavailable.append(self.prev_node)
         self.enable_next_node(node)
 
-    
     def enable_next_node(self, node):
         i = int(node[1:]) + 1
         next_node = str(node[0]) + str(i)
@@ -51,7 +50,8 @@ class Ant():
             self.not_active.remove(next_node)
 
     def get_neighbours(self):
-        sanitized = [item for item in self.G.neighbors(self.curr_node) if item not in self.unavailable and item not in self.not_active]
-        return sanitized
+        neighbours = self.G.neighbors(self.curr_node)
+        sanitized = [item for item in neighbours if item not in self.unavailable and item not in self.not_active]
 
+        return sanitized
 

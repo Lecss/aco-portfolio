@@ -29,8 +29,6 @@ class GraphWrapper():
 
         return drug_stage_map
 
-
-
     def extract_drugs_from_qset(self, drug_qset):
         result = {}
         for drug in drug_qset:
@@ -69,24 +67,26 @@ class GraphWrapper():
         return g
 
     def add_nodes(self, g):
-        
         for drug in self.drug_qset:
             for (i,stage) in enumerate(drug.stage_set.all()):
                 g.add_node( drug.name + str(i+1),
                             index = i, 
                             cost= stage.cost, 
-                            duration= stage.duration, 
-                            active= (i == 0),
+                            duration= stage.duration,
+                            arrive_here_prob = 1 if i == 0 else g.node[drug.name + str(i)]["arrive_here_prob"] * g.node[drug.name + str(i)]["pass_prob"], 
+                            active = (i == 0),
                             pass_prob = stage.fail,
                             start_stage= drug.name + str(1),
+                            last_stage = drug.name + str(len(drug.stage_set.all())),
+                            decision = {},
+                            ph = 0,
                             drug = {
                                 "name": drug.name,
                                 "profit_per_year" : drug.profit_year,
                                 "total_duration" : sum(x.duration for x in drug.stage_set.all()),
                                 "stages_count" : len(drug.stage_set.all()),
                                 "cummulated_prob" : reduce(mul, [x.fail for x in drug.stage_set.all()])
-                            }
-                           )
+                            })
                 
 
         g.add_node(self.food, cost=0, duration=0, active=True)
@@ -98,12 +98,10 @@ class GraphWrapper():
                 if n is not y:
                     g.add_edge(n, y)
 
-
     def get_drugs(self):
         return self.drugs
 
     def compute_drug_probabilities(self):
-
         for drug in self.drugs:
             prev_stage_val = None
 

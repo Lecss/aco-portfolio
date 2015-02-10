@@ -39,7 +39,7 @@ def get_solution(request):
 
 	algo_session = MinMax(graph_wrapper, port_ctrl)
 	#algo_session.run(300, 200)
-	algo_session.run(40, 100)
+	algo_session.run(50, 100)
 	context = {}
 	context['data'] = {}
 
@@ -55,12 +55,12 @@ def get_solution(request):
 
 		#entry["generated"] = [sol.ant.years[x]["generated"] for x in sol.ant.years]
 		entry["path"] = sol.path
-		#entry["per_year"] = position_to_year
-		#entry["years"] = sol.ant.years
-		#entry["budget_over_year"] = [sol.ant.years[x]["generated"] for x in sol.ant.years]
+		entry["exp"] = algo_session.experience
 		entry["value"] = sol.value
+		entry["years"] = sol.years
 		entry["running_time"] = sol.ant.time
 		entry["graph"] = json.loads(graph_wrapper.get_serialized_graph())
+		entry["budget_over_year"] = sol.budget_over_years
 
 		context['data'][c]=(entry)
 		c+=1
