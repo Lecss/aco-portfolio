@@ -26,7 +26,7 @@ class ExpectedValue():
 		self.init_years()
 		#path = ["nest","L1","L2","C1","J1","H1","I1","C2","I2","H2","G1", "H3","K1","K2", "K3","D1","D2","J2","A1","A2","D3", "J3","A3","G2","food" ] 
 		self.path = path
-		print self.path
+		#print self.path
 		
 		#path = ['nest', u'C1', u'C2', u'L1', u'L2',u'I1', u'E1', u'I2', u'H1', u'H2',u'H3', u'E2', u'K1', u'K2', u'K3', u'E3', u'G1', u'G2', u'D1', u'A1', u'J1', u'A2', u'D2', u'A3', u'J2', u'J3', u'D3', 'food']
 		#path = ["I1", "I2", "L1", "L2", "C1","C2", "H1", "H2", "H3"]

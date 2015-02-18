@@ -11,7 +11,7 @@ import random
 
 # Create your views here.
 def get_solution(request):
-	portfolio = Portfolio.objects.get(pk =1)
+	portfolio = Portfolio.objects.get(pk =3)
 	#drugs = portfolio.drug_set.filter(name__in="EHICL" )
 	#drugs = portfolio.drug_set.filter(name__in="ABCDEFGIKL" )
 	drugs = portfolio.drug_set.all()
@@ -39,7 +39,7 @@ def get_solution(request):
 
 	algo_session = MinMax(graph_wrapper, port_ctrl)
 	#algo_session.run(300, 200)
-	algo_session.run(50, 100)
+	algo_session.run(30, 50)
 	context = {}
 	context['data'] = {}
 

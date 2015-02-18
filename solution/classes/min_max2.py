@@ -43,7 +43,7 @@ class MinMax(ACO):
     def terminate_ant(self, ant):
         #entering upon food being the ant's current node 
         if len(ant.solution.path) > 2:
-            print ant.solution.path
+            #print ant.solution.path
             #ant.solution.path = path = ["nest","L1","L2","C1","J1","H1","I1","C2","I2","H2","G1", "H3","K1","K2", "K3","D1","D2","J2","A1","A2","D3", "J3","A3","G2","food" ] 
             solution_value = self.path_expected_value(ant.solution.path)
 
@@ -138,11 +138,14 @@ class MinMax(ACO):
         return selection[random.randint(0, len(selection) - 1)]
 
     def get_heuristics(self, node, path):
-        return 1
+        #return 1
         if node is ACO.food:
-            return 1
+            return 1500
 
-        time_heuristic = self.time_heuristic(node, path)
+        #time_heuristic = self.time_heuristic(node, path)
+        time_heuristic = 1
+
+        #print self.G.node[node]["drug"]["cummulated_prob"] * self.G.node[node]["drug"]["profit_per_year"] * time_heuristic
 
         return self.G.node[node]["drug"]["cummulated_prob"] * self.G.node[node]["drug"]["profit_per_year"] * time_heuristic
 
@@ -157,7 +160,6 @@ class MinMax(ACO):
             print "============"
         """
         drug_total_duration = self.G.node[node]["drug"]["total_duration"]
-
         return self.portfolio.model.duration - (drug_total_duration + invested_in)
 
 
