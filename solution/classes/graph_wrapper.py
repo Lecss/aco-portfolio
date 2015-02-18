@@ -89,8 +89,8 @@ class GraphWrapper():
                             })
                 
 
-        g.add_node(self.food, cost=0, duration=0, active=True)
-        g.add_node(self.nest, cost=0, duration=0, active = True)
+        g.add_node(self.food, cost=0, duration=0, active=True, index=1)
+        g.add_node(self.nest, cost=0, duration=0, active = True, index=1)
 
     def add_edges(self, g):
         for n in g.nodes():

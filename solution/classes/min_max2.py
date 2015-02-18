@@ -43,6 +43,8 @@ class MinMax(ACO):
     def terminate_ant(self, ant):
         #entering upon food being the ant's current node 
         if len(ant.solution.path) > 2:
+            print ant.solution.path
+            #ant.solution.path = path = ["nest","L1","L2","C1","J1","H1","I1","C2","I2","H2","G1", "H3","K1","K2", "K3","D1","D2","J2","A1","A2","D3", "J3","A3","G2","food" ] 
             solution_value = self.path_expected_value(ant.solution.path)
 
             ant.solution.value = solution_value
@@ -62,8 +64,11 @@ class MinMax(ACO):
                         index = self.best_solution_vector.index(best_sol)
 
                 if solution_value > min_value:
-                    if len(self.best_solution_vector) > 1:
+                    if len(self.best_solution_vector) > 2:
                         self.best_solution_vector.pop(index)
+                    #print ant.solution.path
+                    #print ant.solution.value
+                    #print "============"
                     self.best_solution_vector.append(ant.solution)
 
         self.ants.remove(ant)
@@ -101,9 +106,18 @@ class MinMax(ACO):
                 ph = self.G.node[node]["ph"]
                 self.G.node[node]["ph"] = max(1-ACO.p * ph, 0.5)
 
-                if node in path:
-                    self.G.node[node]["ph"] += len(path) - path.index(node)
+                exclude = node is not ACO.food and node is not ACO.nest and self.G.node[node]["last_stage"] not in path
 
+                if node in path and not exclude:
+                    self.G.node[node]["ph"] += (len(path) - path.index(node)) * (self.G.node[node]["index"] + 1)
+
+                  
+
+                    """
+                    #AASDSAKDKSADLMSALDNSA:LDNLSA:NDSA:ND HARDCODE YEAR
+                    if node in sol.years["12"]["items"] or node in sol.years["11"]["items"]:
+                        first_node =  self.G.node[node]["start_stage"]
+                        self.G.node[first_node]["ph"] = 0.5"""
 
     def update_local_pheromones(self, ant):
         pass
@@ -112,15 +126,40 @@ class MinMax(ACO):
         neighbours = ant.get_neighbours()
         fitnesses = []
 
+        #return neighbours[random.randint(0, len(neighbours) - 1)]
         for node in neighbours:
             ph = self.G.node[node]["ph"]
 
-            tau = math.pow(ph, ACO.alpha) * math.pow(1, ACO.betha)
+            tau = math.pow(ph, ACO.alpha) * math.pow(self.get_heuristics(node, ant.solution.path), ACO.betha)
             self.G.edge[curr_node][node]["tau"] = tau
             fitnesses.append(tau)
 
         selection = self.roulette_select(neighbours, fitnesses, len(neighbours))
         return selection[random.randint(0, len(selection) - 1)]
+
+    def get_heuristics(self, node, path):
+        return 1
+        if node is ACO.food:
+            return 1
+
+        time_heuristic = self.time_heuristic(node, path)
+
+        return self.G.node[node]["drug"]["cummulated_prob"] * self.G.node[node]["drug"]["profit_per_year"] * time_heuristic
+
+    def time_heuristic(self,node, path):
+        exp_val = ExpectedValue(self.G, self.portfolio, path)
+        invested_in = exp_val.add_to_year(node, True)
+
+        """
+        if "A" in node:
+            print invested_in
+            print path
+            print "============"
+        """
+        drug_total_duration = self.G.node[node]["drug"]["total_duration"]
+
+        return self.portfolio.model.duration - (drug_total_duration + invested_in)
+
 
     def roulette_select(self, population, fitnesses, num):
         """ Roulette selection, implemented according to:

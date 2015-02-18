@@ -157,12 +157,13 @@
 
 		<div class="col-md-10 result_details">
 			<div class="row">
-				<div class="col-md-3 soution-strategy" style="border-right:4px solid black; height: 28.6em;overflow: auto;">
+				<div class="col-md-3 solution-strategy" style="border-right:4px solid black; height: 28.6em;overflow: auto;">
 					<div class="loaderWrap" ng-class="show == 1 ? 'loading' : '' ">
 						<div class="loader">Loading...</div>
 					</div>
 
 					<h2 class="widget_title" ng-click="select_solution(1)">Solutions </h2>
+					<div ng-show="show==-1">No solution data. Submit to calculate!</div>
 					<div class="row" style="height:6em; padding: 1.2em;">
 						<div class="col-md-12 sol"  ng-repeat="sol in solution.data" ng-click="select_solution($index)">
 							<div class="row"> 
@@ -174,7 +175,6 @@
 								<div class="col-md-12"><h2 style="font-weight:100; margin-top:-11px; color:white;font-size:20px "><span style="color:#666">$</span> {[ sol.value | number : 2]} | {[sum(sol.per_year)]}</h2></div>
 							</div>
 						</div>
-						<div ng-show="show==-1">No solution data. Submit to calculate!</div>
 					</div>
 				</div>
 
@@ -183,6 +183,7 @@
 						<div class="loader">Loading...</div>
 					</div>
 					<h2 class="widget_title">INVEST STRATEGY </h2>
+					<div ng-show="show == -1">No solution data. Submit to calculate!</div>
 					<!--<div class="col-md-12 sol"  ng-repeat="sol in selected_solution.path"> -->
 					<div class="col-md-12 sol"  ng-repeat="year in range(1, portfolio.duration-1)" ng-show="show == 0 ">
 							<div class="row">
@@ -195,12 +196,21 @@
 								</div>
 							</div>
 						</div>
-					<div ng-show="show == -1">No solution data. Submit to calculate!</div>
+					
 				</div>
 				<div ng-controller="myctrl" >  
 					<highchart class="col-md-6 graph" style="padding-left:0px;border-right:10px solid black" id="chart1" series="chart.series" title="chart.title" options="chart.options" ></highchart>
 				</div>
-				
+			</div>
+			<div class="row">
+				<div class="col-md-6" style="border-right:4px solid black;height:30em">
+					<div class="loaderWrap" ng-class="show == 1 ? 'loading' : '' ">
+						<div class="loader">Loading...</div>
+					</div>
+					<h2 class="widget_title">WHAT IF SCENARIO </h2>
+					<div ng-show="show == -1">No solution data. Submit to calculate!</div>
+				</div>
+				<div class="col-md-6">ssa</div>
 			</div>
 		</div> 
 	</div>

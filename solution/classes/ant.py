@@ -19,6 +19,10 @@ class Ant():
         self.populate_inactive()
         self.curr_node = None
         self.move_next(wrapper.nest)
+        #self.move_next("C1")
+        #self.move_next("E1")
+        #self.move_next("I1")
+        #self.unavailable.append("I2")
 
    
     def populate_inactive(self):
