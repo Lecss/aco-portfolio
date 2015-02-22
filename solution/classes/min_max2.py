@@ -111,7 +111,7 @@ class MinMax(ACO):
             
             for node in self.G.nodes():
                 ph = self.G.node[node]["ph"]
-
+                #evaporate
                 self.G.node[node]["ph"] = max((1-ACO.p) * ph, 1)
 
                 exclude = node is ACO.food or node is  ACO.nest or self.G.node[node]["last_stage"] not in path
@@ -131,8 +131,7 @@ class MinMax(ACO):
                     self.G.edge[edge[0]][edge[1]]["ph"] =  max((1-ACO.p) * self.G.edge[edge[0]][edge[1]]["ph"], 1) 
 
                 for x in range(0, len(path)-1):
-                    self.G.edge[path[x]][path[x+1]]["ph"] =  self.G.edge[path[x]][path[x+1]]["ph"] * (1 - 1/sol.value)
-                
+                    self.G.edge[path[x]][path[x+1]]["ph"] =  self.G.edge[path[x]][path[x+1]]["ph"] * (1 - 1/sol.value)        
 
     def update_local_pheromones(self, ant):
         pass

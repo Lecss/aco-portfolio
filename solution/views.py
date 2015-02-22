@@ -42,7 +42,7 @@ def get_solution(request):
 
 	time_start = time.time()
 	for i in range(100):
-	  results_confidence(drugs, portfolio)
+	  #results_confidence(drugs, portfolio)
 	  pass
 
 	print "TOTAL TIME"

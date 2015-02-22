@@ -96,6 +96,8 @@
 			height: 28.6em;
 			overflow: auto;
 		}
+
+		.circle:hover{fill:rgb(255, 0, 102);}
 	</style>
 </head>
 
@@ -209,6 +211,22 @@
 					</div>
 					<h2 class="widget_title">WHAT IF SCENARIO </h2>
 					<div ng-show="show == -1">No solution data. Submit to calculate!</div>
+
+
+
+					<svg width="100%" height="100" style="border:1px solid red">
+						<g>
+						  <line stroke="red" x1="0" y1="35" x2="{[selected_solution.path.length * 35 - 20]}" y2="35"/>
+						  <g ng-repeat="stage in selected_solution.path">
+						  	<g transform="translate({[$index * 35]},0)">
+						  		<text x="5" style="color:#E0E0E3;font-size:12px;cursor:pointer;fill:#E0E0E3;" y="15">{[stage]}</text>
+						  		<circle class="circle" cx="10" cy="35" r="10" stroke="green" stroke-width="2" fill="yellow" />
+						  	</g>
+						  </g>
+						</g>
+						
+					</svg>
+
 				</div>
 				<div  ng-controller="myctrl">
 					<highchart class="col-md-6 graph" style="padding-left:0px;border-right:10px solid black" id="chart2" series="chart_ph.series" title="chart.title" options="chart_ph.options" ></highchart>
@@ -265,9 +283,9 @@
 					return string
 				}
 
-				console.log(year)
-				console.log($scope.selected_solution.years[year])
-				console.log("===========")
+				//console.log(year)
+				//console.log($scope.selected_solution.years[year])
+				//console.log("===========")
 				angular.forEach($scope.selected_solution.years[year+1].items, function(val){
 					string += val
 					string += ' , '
