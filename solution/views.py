@@ -42,7 +42,7 @@ def get_solution(request):
 
 	time_start = time.time()
 	for i in range(100):
-	  #results_confidence(drugs, portfolio)
+	  results_confidence(drugs, portfolio)
 	  pass
 
 	print "TOTAL TIME"
@@ -56,7 +56,7 @@ def get_solution(request):
 
 	algo_session = MinMax(graph_wrapper, port_ctrl)
 	#algo_session.run(300, 200)
-	algo_session.run(10, 100)
+	algo_session.run(30, 100)
 	context = {}
 	context['data'] = {}
 
@@ -91,7 +91,7 @@ def results_confidence(drugs, portfolio):
 	graph_wrapper = GraphWrapper(drugs)	
 	port_ctrl = PortfolioCtrl(portfolio)
 	algo_session = MinMax(graph_wrapper, port_ctrl)
-	algo_session.run(30, 100)
+	algo_session.run(10, 50)
 	solutions = algo_session.best_solution_vector
 	best = 0
 	for sol in solutions:

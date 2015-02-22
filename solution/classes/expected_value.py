@@ -1,6 +1,9 @@
 
 
 class ExpectedValue():
+
+	min_so_far = 0 
+
 	def __init__(self, G, portfolio, path=None):
 		self.G = G
 		self.portfolio = portfolio
@@ -25,6 +28,7 @@ class ExpectedValue():
 	def compute(self, path):
 		self.init_years()
 		#path = ["nest","L1","L2","C1","J1","H1","I1","C2","I2","H2","G1", "H3","K1","K2", "K3","D1","D2","J2","A1","A2","D3", "J3","A3","G2","food" ] 
+	
 		self.path = path
 		#print self.path
 		
@@ -36,12 +40,18 @@ class ExpectedValue():
 			if stage is "food" or stage is "nest":
 				continue
 			if not self.add_to_year(stage):
-				return 1
+				return ExpectedValue.min_so_far
 
 		#print self.years[10]["items"]
 		#print path
 		#self.print_trace()
 		#print "============"
+
+		expected_value = self.expected_value(path)
+
+		if expected_value < ExpectedValue.min_so_far:
+			min_so_far = expected_value
+
 		return self.expected_value(path)
 
 	def add_to_year(self, stage, year_needed=False):
@@ -113,8 +123,8 @@ class ExpectedValue():
 		return complements
 
 	def expected_value(self, path):
-		cost = 0
-		
+		"""cost = 0
+
 		for x in self.years:
 			for stage in self.years[x]["items"]:
 				cost -= self.G.node[stage]["cost"] * self.G.node[stage]["arrive_here_prob"]
@@ -126,8 +136,49 @@ class ExpectedValue():
 				tmp_node = d + str(1)
 				complete_expected += self.G.node[tmp_node]["drug"]["cummulated_prob"] * self.G.node[tmp_node]["drug"]["profit_per_year"] * (self.portfolio.model.duration - x)
 
+		if complete_expected+cost > 74000:
+			print path
 		return complete_expected + cost
+		"================================================" 
+		"""
+		cost = 0
+		drugs_calculated = []
+		
+		#print path
+		#path = ['nest', u'C1', u'L1', u'A1', u'L2', u'C2', u'H1', u'G1', u'A2', u'H2', u'H3', u'A3', u'I1', u'I2', u'G2', 'food']
 
+		for x in self.path:
+			#print x
+			if x not in drugs_calculated and x is not "food" and x is not "nest":
+				#print x
+				drug = self.G.node[x]["drug"]["name"]
+				stage_count = self.G.node[x]["drug"]["stages_count"]
+				complement = self.get_stage_complement(x)
+				all_stages = [x]
+				drugs_calculated.append(x)
+				drugs_calculated += complement
+				all_stages+=complement
+				"""
+				print drug
+				print all_stages
+				print cost"""
+
+				for i in all_stages:
+					cost+= -1 * (stage_count+ 1 - self.G.node[i]["index"]) * self.G.node[i]["cost"] * self.G.node[i]["arrive_here_prob"]
+					#print cost
+
+		complete_expected = 0
+		#print "=="
+		for x in self.years:
+			for d in  self.years[x]["complete"]:
+				tmp_node = d + str(1)
+				complete_expected += self.G.node[tmp_node]["drug"]["cummulated_prob"] * self.G.node[tmp_node]["drug"]["profit_per_year"] * (self.portfolio.model.duration - x)
+
+		#print complete
+		#print complete_expected+cost
+		#print "=========="
+
+		return complete_expected + cost
 	def print_trace(self):
 		generated = [self.years[x]["generated"] for x in self.years]
 		print generated
