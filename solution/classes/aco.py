@@ -8,7 +8,7 @@ class ACO():
 
 	alpha = 1
 	betha = 2
-	p = 0.5
+	p = 0.2
 
 	food = "food"
 	nest = "nest"

@@ -36,7 +36,7 @@ class ExpectedValue():
 			if stage is "food" or stage is "nest":
 				continue
 			if not self.add_to_year(stage):
-				return 0
+				return 1
 
 		#print self.years[10]["items"]
 		#print path
@@ -60,11 +60,6 @@ class ExpectedValue():
 		if can_add:
 			invested_in_year = min_invest_year
 
-			#if stage == "B3":
-				#print invested_in_year
-				#print self.years[10]["restricted_items"]
-			#print self.years
-			#print "--sx=-------"
 			for x in range(min_invest_year, self.portfolio.model.duration - stage_duration +1):
 				if self.years[x]["budget"] -  stage_cost >= 0:
 					if stage not in self.years[x]["restricted_items"]:
@@ -119,7 +114,7 @@ class ExpectedValue():
 
 	def expected_value(self, path):
 		cost = 0
-
+		
 		for x in self.years:
 			for stage in self.years[x]["items"]:
 				cost -= self.G.node[stage]["cost"] * self.G.node[stage]["arrive_here_prob"]

@@ -210,7 +210,9 @@
 					<h2 class="widget_title">WHAT IF SCENARIO </h2>
 					<div ng-show="show == -1">No solution data. Submit to calculate!</div>
 				</div>
-				<div class="col-md-6">ssa</div>
+				<div  ng-controller="myctrl">
+					<highchart class="col-md-6 graph" style="padding-left:0px;border-right:10px solid black" id="chart2" series="chart_ph.series" title="chart.title" options="chart_ph.options" ></highchart>
+				</div>
 			</div>
 		</div> 
 	</div>
@@ -285,6 +287,7 @@
 			
 					$scope.remove_demo_data()
 					$scope.process_results(data.data)
+					$scope.process_results_ph(data.phs)
 					$scope.selected_solution = data["0"]
 					$scope.show = 0
 
@@ -301,9 +304,22 @@
 				
 				angular.forEach(data, function(val){
 					$scope.chart.series.push({
-						data: val.budget_over_year
+						"data": val.budget_over_year
 					})
 				})	
+			}
+
+			$scope.process_results_ph = function(data){
+				$scope.chart_ph.series = []
+
+
+				angular.forEach(data, function(val, k ){
+					$scope.chart_ph.series.push({
+						"data": val,
+						"name": k
+					})
+				})
+				
 			}
 
 
@@ -346,7 +362,41 @@
 			            align:'left'
 			        }
 			}
+
+
+			$scope.chart_ph = {
+			        options: {
+			            chart: {
+			                type: 'column'
+			            },
+				        xAxis: {
+
+				             categories: new Array($scope.portfolio.duration)
+				        },
+				        yAxis: {
+				            title: {
+				                text: 'Budget'
+				            },
+				            plotLines: [{
+				                value: 0,
+				                width: 1,
+				                color: '#808080'
+				            }]
+				        }
+			        },
+			        series: [
+			        	{ name:"IsNITIAL BUDGET", data : [0,0,0,0,0,0]}
+			        ],
+			        title: {
+			            text: 'Budget over the year',
+			            x:23,
+			            align:'left'
+			        }
+			}
+
 		})
+
+
 
 		app.config(function($interpolateProvider) {
 			 $interpolateProvider.startSymbol('{[');

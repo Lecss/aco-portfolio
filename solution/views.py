@@ -7,11 +7,17 @@ from django.http import HttpResponse,HttpResponseBadRequest
 import json
 import random
 
+from threading import Thread, current_thread
+import threading
+from time import sleep
+import logging
 
+import time
 
+global_x = {}
 # Create your views here.
 def get_solution(request):
-	portfolio = Portfolio.objects.get(pk =3)
+	portfolio = Portfolio.objects.get(pk =1)
 	#drugs = portfolio.drug_set.filter(name__in="EHICL" )
 	#drugs = portfolio.drug_set.filter(name__in="ABCDEFGIKL" )
 	drugs = portfolio.drug_set.all()
@@ -33,13 +39,24 @@ def get_solution(request):
 
 	drugs = portfolio2.drug_set.all()"""
 
+
+	time_start = time.time()
+	for i in range(100):
+	  #results_confidence(drugs, portfolio)
+	  pass
+
+	print "TOTAL TIME"
+	print time.time() - time_start
+
+	print global_x
+
 	graph_wrapper = GraphWrapper(drugs)	
 
 	port_ctrl = PortfolioCtrl(portfolio)
 
 	algo_session = MinMax(graph_wrapper, port_ctrl)
 	#algo_session.run(300, 200)
-	algo_session.run(30, 50)
+	algo_session.run(10, 100)
 	context = {}
 	context['data'] = {}
 
@@ -64,12 +81,29 @@ def get_solution(request):
 
 		context['data'][c]=(entry)
 		c+=1
-	context['data']
+	context["phs"] = algo_session.pheromones
 
-	#print algo_session.in_
-	#print algo_session.out_
-	#print "================================================="
 	return HttpResponse(json.dumps(context), content_type='application/json')
+
+
+def results_confidence(drugs, portfolio):
+
+	graph_wrapper = GraphWrapper(drugs)	
+	port_ctrl = PortfolioCtrl(portfolio)
+	algo_session = MinMax(graph_wrapper, port_ctrl)
+	algo_session.run(30, 100)
+	solutions = algo_session.best_solution_vector
+	best = 0
+	for sol in solutions:
+		if sol.value > best:
+			best = sol.value
+
+	if str(best) not in global_x.keys():
+		global_x[str(best)] = 1
+	else:
+		global_x[str(best)] = global_x[str(best)] + 1
+
+	#print "exit" + str(i)
 
 def get_graph(request):
 	 

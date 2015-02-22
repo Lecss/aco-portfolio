@@ -8,6 +8,7 @@ from sets import Set
 import time
 from expected_value import ExpectedValue
 import json
+import time
 
 class MinMax(ACO):
     def __init__(self, graph_wrapper, portfolio):
@@ -18,15 +19,18 @@ class MinMax(ACO):
         self.experience = {}
 
         self.expected_value = ExpectedValue(self.G, portfolio)
+        self.pheromones = {}
 
         self.initialize_pheromones()
         self.best_solution_vector = []
+
+        self.iter_no = 0
 
         self.portfolio = portfolio
         self.start_time = time.time()
 
     def initialize_pheromones(self):
-        value = 10
+        value = 1
         for edge in self.G.edges():
             self.G[edge[0]][edge[1]]["ph"] = value
             self.G[edge[0]][edge[1]]["from"] = edge[0] + ":" +  edge[1]
@@ -78,6 +82,7 @@ class MinMax(ACO):
         self.initialize_ants(ants_no)
 
         for x in range(0, iter_no):
+            self.iter_no += 1
             for ant in self.ants:
                 self.build_ant_solution(ant)
                 self.update_local_pheromones(ant)
@@ -104,20 +109,35 @@ class MinMax(ACO):
             
             for node in self.G.nodes():
                 ph = self.G.node[node]["ph"]
-                self.G.node[node]["ph"] = max(1-ACO.p * ph, 0.5)
 
-                exclude = node is not ACO.food and node is not ACO.nest and self.G.node[node]["last_stage"] not in path
+                self.G.node[node]["ph"] = max((1-ACO.p) * ph, 1)
+
+                exclude = node is ACO.food or node is  ACO.nest or self.G.node[node]["last_stage"] not in path
 
                 if node in path and not exclude:
-                    self.G.node[node]["ph"] += (len(path) - path.index(node)) * (self.G.node[node]["index"] + 1)
+                    # index logic = the higher the index the more important to finish it
+                    self.G.node[node]["ph"] += (len(path) - path.index(node)) * (self.G.node[node]["index"] + 1) 
 
-                  
+                if node in self.pheromones.keys():
+                    self.pheromones[node].append(self.G.node[node]["ph"])
+                else:
+                    self.pheromones[node] = [self.G.node[node]["ph"]]
 
-                    """
-                    #AASDSAKDKSADLMSALDNSA:LDNLSA:NDSA:ND HARDCODE YEAR
-                    if node in sol.years["12"]["items"] or node in sol.years["11"]["items"]:
-                        first_node =  self.G.node[node]["start_stage"]
-                        self.G.node[first_node]["ph"] = 0.5"""
+
+
+                for edge in self.G.edges():
+                    self.G.edge[edge[0]][edge[1]]["ph"] =  max((1-ACO.p) * self.G.edge[edge[0]][edge[1]]["ph"], 1) 
+
+                for x in range(0, len(path)-1):
+                    self.G.edge[path[x]][path[x+1]]["ph"] =  self.G.edge[path[x]][path[x+1]]["ph"] * (1 - 1/sol.value)
+                
+
+      
+            """
+            #AASDSAKDKSADLMSALDNSA:LDNLSA:NDSA:ND HARDCODE YEAR
+            if node in sol.years["12"]["items"] or node in sol.years["11"]["items"]:
+                first_node =  self.G.node[node]["start_stage"]
+                self.G.node[first_node]["ph"] = 0.5"""
 
     def update_local_pheromones(self, ant):
         pass
@@ -129,15 +149,17 @@ class MinMax(ACO):
         #return neighbours[random.randint(0, len(neighbours) - 1)]
         for node in neighbours:
             ph = self.G.node[node]["ph"]
+            ph2 = self.G.edge[curr_node][node]["ph"]
 
-            tau = math.pow(ph, ACO.alpha) * math.pow(self.get_heuristics(node, ant.solution.path), ACO.betha)
+            ph = ph
+            tau = math.pow(ph, ACO.alpha) * math.pow(self.get_heuristics(curr_node, node, ant.solution.path), ACO.betha)
             self.G.edge[curr_node][node]["tau"] = tau
             fitnesses.append(tau)
 
         selection = self.roulette_select(neighbours, fitnesses, len(neighbours))
         return selection[random.randint(0, len(selection) - 1)]
 
-    def get_heuristics(self, node, path):
+    def get_heuristics(self, curr_node, node, path):
         #return 1
         if node is ACO.food:
             return 1500

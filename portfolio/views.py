@@ -42,7 +42,6 @@ def portfolio_data(request):
 
 def get_home_data(portfolio, drugs):
 
-
 	result = { 'portfolio': {
 					'name': "",
 					'budget': "",
