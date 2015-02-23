@@ -8,4 +8,5 @@ urlpatterns = patterns('',
 
     url(r'^$', 'solution.views.get_solution', name='solution'),
     url(r'^get_graph', 'solution.views.get_graph', name="get_graph"),
+    url(r'^recalculate', 'solution.views.recalculate', name="recalculate"),
 )

@@ -23,17 +23,17 @@
 	
 		*/
 
-		.nav{ border-bottom:4px solid black; padding:.5em ; color:white;}
+		.nav{ border-bottom:4px solid black; padding:1.2em ; color:white;}
 
 		.nav h2{ margin:5px 0; font-size: 19px;font-weight: 300; display:inline-block; }
 		.drug{ padding: 10px 0px; padding:0em; width: 100%; border-bottom:1px solid #0A0A0A; margin:2px; height:8em;}
-		.drugs { overflow:auto; border-right:4px solid black;height:65em;}
+		.drugs { overflow:auto; border-right:4px solid black;height:67em;}
 
 		#submit_form { position:fixed; bottom:0; width:15%; padding:.6em 0;width: 16%;border-radius: 0; z-index:200;}
 		#drug_form { padding-bottom: 3em;}
 		body { background: rgb(31, 31, 31); overflow-x:hidden;}
 
-		.drug  span { font-size:12px; color: #555; display: inline-block;}
+		.drug  span { font-size:12px; color: #888; display: inline-block;}
 		.drug:hover {background:rgb(28,28,28);}
 		.drug h4 { display:inline; color: #fafafa; font-size:14px;}
 
@@ -123,8 +123,8 @@
 					  <!-- Wrapper for slides -->
 					  <div class="carousel-inner" role="listbox">
 					    <div class="item active">
-					      	<span>DRUG:</span> <h4>{[drug_key]} </h4>
-							<span style="float:right">{[ drug_val.profit_year | currency]} / year</span>
+					      	<span style="margin-left:1em">DRUG:</span> <h4>{[drug_key]} </h4>
+							<span style="float:right; margin-right:1em">{[ drug_val.profit_year | currency]} / year</span>
 							<br>
 							<h3>  {[ call(drug_val.stages) ]} <p style="font-size:14px">stages</p></h3>
 
@@ -214,13 +214,13 @@
 
 
 
-					<svg width="100%" height="100" style="border:1px solid red">
+					<svg width="100%" height="100" >
 						<g>
-						  <line stroke="red" x1="0" y1="35" x2="{[selected_solution.path.length * 35 - 20]}" y2="35"/>
+						  <line stroke="#A8EEEF" stroke-width="2" x1="0" y1="35" x2="{[selected_solution.path.length * 35 - 20]}" y2="35"/>
 						  <g ng-repeat="stage in selected_solution.path">
 						  	<g transform="translate({[$index * 35]},0)">
 						  		<text x="5" style="color:#E0E0E3;font-size:12px;cursor:pointer;fill:#E0E0E3;" y="15">{[stage]}</text>
-						  		<circle class="circle" cx="10" cy="35" r="10" stroke="green" stroke-width="2" fill="yellow" />
+						  		<circle class="circle" cx="10" cy="35" r="10" stroke="black" stroke-width="1" fill="#A8EEEF" ng-click="recalculate($index)"/>
 						  	</g>
 						  </g>
 						</g>
@@ -313,6 +313,14 @@
 				})
 			}
 
+			$scope.recalculate = function(index){
+				$http.get('/solution/recalculate', {params:{index:index, path: JSON.stringify($scope.selected_solution.path) }}).success(function(data){
+
+					console.log("xx");
+				})
+
+			}
+
 			$scope.select_solution = function(i){
 				$scope.selected_solution = $scope.solution.data[i]
 			}
@@ -332,10 +340,12 @@
 
 
 				angular.forEach(data, function(val, k ){
-					$scope.chart_ph.series.push({
-						"data": val,
-						"name": k
-					})
+					if (k != "food" && k != "nest"){
+						$scope.chart_ph.series.push({
+							"data": val,
+							"name": k
+						})
+					}
 				})
 				
 			}

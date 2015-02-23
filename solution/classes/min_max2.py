@@ -11,11 +11,11 @@ import json
 import time
 
 class MinMax(ACO):
-    def __init__(self, graph_wrapper, portfolio):
+    def __init__(self, graph_wrapper, portfolio, partial_sol=None):
         self.wrapper = graph_wrapper
         self.G = graph_wrapper.get_graph()
         self.ants = []
-
+        self.partial_sol = partial_sol if partial_sol is not None else []
         self.experience = {}
 
         self.expected_value = ExpectedValue(self.G, portfolio)
@@ -41,7 +41,7 @@ class MinMax(ACO):
 
     def initialize_ants(self, ants_no):
         for x in range(ants_no):
-            ant = Ant(self.wrapper, self.portfolio)
+            ant = Ant(self.wrapper, self.portfolio, self.partial_sol)
             self.ants.append(ant)
 
     def terminate_ant(self, ant):
@@ -155,7 +155,7 @@ class MinMax(ACO):
     def get_heuristics(self, curr_node, node, path):
         #return 1
         if node is ACO.food:
-            return 3000
+            return 2000
 
         #time_heuristic = self.time_heuristic(node, path)
 
