@@ -61,40 +61,49 @@ def test():
 	print global_x
 
 def recalculate(request):
-	fail_index = int(request.GET.get("index"))
+	#fail_index = int(request.GET.get("index"))
+	failed = json.loads(request.GET.get("failed"))
+
+	print failed
 	path = json.loads(request.GET.get("path"))
 
+	fail_index = path.index(failed[-1])
+
 	partial_sol = path[:int(fail_index)+1]
-	algo_session = get_algo_session(request, partial_sol)
+	algo_session = get_algo_session(request, partial_sol, failed)
 	algo_session.run(iters, ant_no)
 	context = {'data':{} }
 
 	solutions = algo_session.best_solution_vector
 	c = 0
-	for sol in reversed(solutions):
 
-		#print sol.ant.years
-		if c > 4:
-			continue
-		entry = {}
+	best_solution = solutions[0]
 
-		#entry["generated"] = [sol.ant.years[x]["generated"] for x in sol.ant.years]
-		entry["path"] = sol.path
-		entry["exp"] = algo_session.experience
-		entry["value"] = sol.value
-		entry["years"] = sol.years
-		entry["running_time"] = sol.ant.time
-		entry["budget_over_year"] = sol.budget_over_years
+	for sol in solutions:
+		if sol.value > best_solution.value:
+			best_solution_value = sol
 
-		context['data'][c]=(entry)
-		c+=1
+	
+	sol = best_solution
+		
+	entry = {}
+
+	#entry["generated"] = [sol.ant.years[x]["generated"] for x in sol.ant.years]
+	entry["path"] = sol.path
+	entry["exp"] = algo_session.experience
+	entry["value"] = sol.value
+	entry["years"] = sol.years
+	entry["running_time"] = sol.ant.time
+	entry["budget_over_year"] = sol.budget_over_years
+
+	context['data'][c]=(entry)
 	context["phs"] = algo_session.pheromones
 
 	return HttpResponse(json.dumps(context),content_type="application/json")
 
 
 
-def get_algo_session(request, partial_sol=[]):
+def get_algo_session(request, partial_sol=[], failed=[]):
 	portfolio = Portfolio.objects.get(pk =1)
 	#drugs = portfolio.drug_set.filter(name__in="EHICL" )
 	#drugs = portfolio.drug_set.filter(name__in="ABCDEFGIKL" )
@@ -103,7 +112,7 @@ def get_algo_session(request, partial_sol=[]):
 	graph_wrapper = GraphWrapper(drugs)	
 	port_ctrl = PortfolioCtrl(portfolio)
 	#test(drugs,portfolio)
-	algo_session = MinMax(graph_wrapper, port_ctrl, partial_sol)
+	algo_session = MinMax(graph_wrapper, port_ctrl, partial_sol, failed)
 
 	return algo_session
 

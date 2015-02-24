@@ -11,14 +11,15 @@ import json
 import time
 
 class MinMax(ACO):
-    def __init__(self, graph_wrapper, portfolio, partial_sol=None):
+    def __init__(self, graph_wrapper, portfolio, partial_sol=[], failed=[]):
         self.wrapper = graph_wrapper
         self.G = graph_wrapper.get_graph()
         self.ants = []
-        self.partial_sol = partial_sol if partial_sol is not None else []
+        self.partial_sol = partial_sol
+        self.failed = failed
         self.experience = {}
 
-        self.expected_value = ExpectedValue(self.G, portfolio)
+        self.expected_value = ExpectedValue(self.G, portfolio, failed)
         self.pheromones = {}
 
         self.initialize_pheromones()
@@ -41,7 +42,7 @@ class MinMax(ACO):
 
     def initialize_ants(self, ants_no):
         for x in range(ants_no):
-            ant = Ant(self.wrapper, self.portfolio, self.partial_sol)
+            ant = Ant(self.wrapper, self.portfolio, self.partial_sol, self.failed)
             self.ants.append(ant)
 
     def terminate_ant(self, ant):
@@ -70,6 +71,9 @@ class MinMax(ACO):
                         index = self.best_solution_vector.index(best_sol)
 
                 if solution_value > min_value:
+                    #print ant.time 
+                    #print ant.solution.value
+                    #print "----------"
                     if len(self.best_solution_vector) > 2:
                         self.best_solution_vector.pop(index)
                     #print ant.solution.path

@@ -7,7 +7,7 @@ class Ant():
 
     ant_id = 0
 
-    def __init__(self, wrapper, portfolio, partial_solution):
+    def __init__(self, wrapper, portfolio, partial_solution, failed=[]):
         self.solution = Solution()
         self.solution.ant = self
         self.ant_id = Ant.ant_id
@@ -19,22 +19,22 @@ class Ant():
         self.populate_inactive()
         self.curr_node = None
         self.move_next(wrapper.nest)
-        self.update_partial_solution(partial_solution)
+        self.update_partial_solution(partial_solution,failed)
         #self.move_next("C1")
         #self.move_next("E1")
         #self.move_next("I1")
         #self.unavailable.append("I2")
 
-    def update_partial_solution(self, path):
+    def update_partial_solution(self, path, failed):
         for x in path:
             if x !=  u"nest":
                 self.move_next(x)
 
-        if len(path) > 0:
-            for i in range(self.G.node[path[-1]]["drug"]["stages_count"]):
-                self.unavailable.append(self.G.node[path[-1]]["drug"]["name"] + str(i+1))
-               
-               
+        for x in failed:
+            for i in range(self.G.node[x]["drug"]["stages_count"]):
+                self.unavailable.append(self.G.node[x]["drug"]["name"] + str(i+1))
+                   
+                   
     def populate_inactive(self):
         for x in self.G.nodes():
             node = self.G.node[x]

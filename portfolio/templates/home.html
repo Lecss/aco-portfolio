@@ -174,7 +174,7 @@
 								<div class="col-md-4" style='padding-left:2em'>
 									<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
 									<p class="info" style="text-align:right; color:white; display:inline; float:right;font-weight:200 ">{[ sol.running_time | number : 2]} sec</p></div>
-								<div class="col-md-12"><h2 style="font-weight:100; margin-top:-11px; color:white;font-size:20px "><span style="color:#666">$</span> {[ sol.value | number : 2]} | {[sum(sol.per_year)]}</h2></div>
+								<div class="col-md-12"><h2 style="font-weight:100; margin-top:-11px; color:white;font-size:20px "><span style="color:#666">$</span> {[ sol.value | number : 2]}</h2></div>
 							</div>
 						</div>
 					</div>
@@ -212,16 +212,14 @@
 					<h2 class="widget_title">WHAT IF SCENARIO </h2>
 					<div ng-show="show == -1">No solution data. Submit to calculate!</div>
 
-
-
-					<svg width="100%" height="100" >
-						<g>
-						  <line stroke="#A8EEEF" stroke-width="2" x1="0" y1="35" x2="{[selected_solution.path.length * 35 - 20]}" y2="35"/>
-						  <g ng-repeat="stage in selected_solution.path">
-						  	<g transform="translate({[$index * 35]},0)">
-						  		<text x="5" style="color:#E0E0E3;font-size:12px;cursor:pointer;fill:#E0E0E3;" y="15">{[stage]}</text>
-						  		<circle class="circle" cx="10" cy="35" r="10" stroke="black" stroke-width="1" fill="#A8EEEF" ng-click="recalculate($index)"/>
-						  	</g>
+					<svg width="100%" height="100%" ng-show="show == 0">
+						<g  ng-repeat="(k,new_best_sol) in selected_solution.recalculated">
+						  <g ng-repeat="stage in new_best_sol.path" transform="translate({[$index * 39]}, {[$parent.$index * 50]})" ng-hide="k > 1 && $index < selected_solution.recalculated[k-1].failed_index">
+						  		<text x="5" style="consolelor:#E0E0E3;font-size:12px;cursor:pointer;fill:#E0E0E3;" y="15">{[stage]}</text>
+						  		<line stroke="{[ new_best_sol.failed_index != undefined && $index >= new_best_sol.failed_index ? '#444': '#A8EEEF' ]}" stroke-width="2" x1="1" y1="35" x2="50" y2="35" ng-hide="$last"/>
+						  		<line stroke="#A8EEEF" stroke-width="2" x1="6" y1="35" x2="6" y2="80" ng-hide="$index != new_best_sol.failed_index"/>
+						  		<circle class="circle" cx="6" cy="35" r="6" stroke="black" stroke-width="1" fill="#A8EEEF" ng-click="recalculate($index, $parent.$index + 1)"/>
+						  			
 						  </g>
 						</g>
 						
@@ -238,6 +236,7 @@
 	
 
 	<script>
+
 (function() {
 		var app = angular.module('portfolio', ['ngResource', "highcharts-ng"])
 		
@@ -272,6 +271,7 @@
 			}
 
 			$scope.sum = function(arr){
+				console.log(arr)
 				return eval(arr.join('+'))
 			}
 
@@ -299,26 +299,45 @@
 				$scope.show = 1
 
 				$scope.graph = Graph.get({portfolio_id : 1 })
-				$scope.solution = Solution.get({portfolio_id : 1 },function(data){
-					
+				$scope.solution = Solution.get({portfolio_id : 1 }).$promise.then(function(data){
 					$scope.solution = data
-			
+					angular.forEach($scope.solution.data, function(val){
+						
+						val["recalculated"] = {}
+						val["recalculated"][1] = val
+						val["recalculated"][1]["whole_path"] = val.path
+					})
+
 					$scope.remove_demo_data()
 					$scope.process_results(data.data)
 					$scope.process_results_ph(data.phs)
-					$scope.selected_solution = data["0"]
+					$scope.selected_solution = data.data[0]
 					$scope.show = 0
-
-					setTimeout(function(){$scope.$apply()}, 100)
 				})
 			}
 
-			$scope.recalculate = function(index){
-				$http.get('/solution/recalculate', {params:{index:index, path: JSON.stringify($scope.selected_solution.path) }}).success(function(data){
+			$scope.recalculate = function(index, parent_index){
+				$scope.selected_solution["recalculated"][parent_index]["failed_index"] = index
 
-					console.log("xx");
+				var failed = []
+				angular.forEach($scope.selected_solution["recalculated"], function(val,key){
+					if(key > parent_index){
+						delete $scope.selected_solution["recalculated"][key]
+					}
+
+					if (val.failed_index != undefined){
+						failed.push(val.path[val.failed_index])
+					}
 				})
 
+				console.log(failed)
+
+
+				$http.get('/solution/recalculate', {params:{failed:JSON.stringify(failed), path: JSON.stringify($scope.selected_solution["recalculated"][parent_index].path) }})
+				.success(function(data){
+					$scope.selected_solution["recalculated"][parent_index + 1] = data.data[0]
+
+				})
 			}
 
 			$scope.select_solution = function(i){

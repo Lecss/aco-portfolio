@@ -13,7 +13,7 @@ class HomeTest(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
         self.browser.implicitly_wait(3)
-
+    """
     def tearDown(self):
         self.browser.quit()
 
@@ -37,3 +37,4 @@ class HomeTest(LiveServerTestCase):
 
         self.assertIn("Results page", self.browser.title)
         self.assertIn("directed", body.text)
+    """
