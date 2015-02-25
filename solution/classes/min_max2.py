@@ -52,6 +52,9 @@ class MinMax(ACO):
             #ant.solution.path = path = ["nest","L1","L2","C1","J1","H1","I1","C2","I2","H2","G1", "H3","K1","K2", "K3","D1","D2","J2","A1","A2","D3", "J3","A3","G2","food" ] 
             #ant.solution.path = ['nest', u'C1', u'L1', u'A1', u'L2', u'C2', u'H1', u'G1', u'A2', u'H2', u'H3', u'A3', u'I1', u'I2', u'G2', 'food']
             #ant.solution.path = ['nest', u'L1', u'L2', u'A1', u'A2',u'A3', u'C1', u'H1', u'C2', u'H2', u'I1', u'I2', u'H3', 'food']
+            
+            ant.solution.path.pop()
+            ant.solution.path.pop(0)
             solution_value = self.path_expected_value(ant.solution.path)
 
             ant.solution.value = solution_value

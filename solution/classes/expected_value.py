@@ -1,5 +1,5 @@
 
-
+import copy
 class ExpectedValue():
 
 	min_so_far = 0 
@@ -12,25 +12,25 @@ class ExpectedValue():
 		self.path = path
 		self.init_years()
 		self.failed_drugs = [self.G.node[x]["drug"]["name"] for x in failed]
-		print self.failed_drugs
+
 		if path is not None:
 			for stage in path:
 				if stage is not "food" and stage is not "nest":
 					self.add_to_year(stage)
-		#print "----------000"
-		#print self.portfolio.model.duration
+
 
 	def init_years(self):
 		years = {}
 		for x in range(1, self.portfolio.model.duration+1):
-			#print x
 			self.years[x] = {"items":[], "restricted_items":[], "budget": self.portfolio.model.budget, "complete":[], "generated": 0}
 		return years
 
 	def compute(self, path):
 		self.init_years()
 		#path = ["nest","L1","L2","C1","J1","H1","I1","C2","I2","H2","G1", "H3","K1","K2", "K3","D1","D2","J2","A1","A2","D3", "J3","A3","G2","food" ] 
+		
 		self.path = path
+	
 		#path = ["nest", "L1", "C1", "L2", "H1", "C2", "A1", "J1", "I1", "D1", "K1", "I2", "K2", "K3", 
 		#"A2","H2", "E1","J2","H3","G1","D2","G2","D3","J3","A3","E2","E3"]
 		for stage in path:
@@ -40,7 +40,7 @@ class ExpectedValue():
 				return ExpectedValue.min_so_far
 
 		#calculate the expected value
-		expected_value = self.expected_value(path)
+		expected_value = self.expected_value(self.path)
 
 		#update the minimum found so far
 		if expected_value < ExpectedValue.min_so_far:
@@ -120,7 +120,7 @@ class ExpectedValue():
 		cost = 0
 		drugs_calculated = []
 		
-		for x in self.path:
+		for x in path:
 			if x not in drugs_calculated and x is not "food" and x is not "nest":
 				drug = self.G.node[x]["drug"]["name"]
 				complement = self.get_stage_complement(x)

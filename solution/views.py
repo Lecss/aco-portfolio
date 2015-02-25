@@ -15,8 +15,8 @@ import logging
 import time
 
 global_x = {}
-ant_no = 100
-iters = 20
+ant_no = 80
+iters = 30
 # Create your views here.
 def get_solution(request):
 
