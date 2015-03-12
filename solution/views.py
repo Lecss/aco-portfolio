@@ -15,8 +15,8 @@ import logging
 import time
 
 global_x = {}
-ant_no = 80
-iters = 30
+ant_no = 1
+iters = 1
 # Create your views here.
 def get_solution(request):
 
@@ -53,7 +53,7 @@ def get_solution(request):
 def test():
 	time_start = time.time()
 	for i in range(100):
-	  #results_confidence(drugs, portfolio)
+	#results_confidence(drugs, portfolio)
 	  pass
 
 	print "TOTAL TIME"
@@ -64,7 +64,7 @@ def recalculate(request):
 	#fail_index = int(request.GET.get("index"))
 	failed = json.loads(request.GET.get("failed"))
 
-	print failed
+	#print failed
 	path = json.loads(request.GET.get("path"))
 
 	fail_index = path.index(failed[-1])

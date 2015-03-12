@@ -7,7 +7,7 @@ class ACO():
 	__metaclass__ = abc.ABCMeta
 
 	alpha = 1
-	betha = 2
+	betha = 3
 	p = 0.4
 
 	food = "food"

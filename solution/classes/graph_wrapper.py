@@ -13,6 +13,22 @@ class GraphWrapper():
         self.G = self.create_graph()
         self.compute_drug_probabilities()
         self.profit_year = self.compute_profit(drug_qset)
+        self.drug_stages = {}
+
+
+    def get_drug_stages(self, drug):
+        if drug in self.drug_stages.keys():
+            return self.drug_stages[drug]
+            
+        first_stage = drug + "1"
+        stages_count = self.G.node[first_stage]["drug"]["stages_count"]
+        arr = []
+        for i in range(stages_count):
+            arr.append(drug+ str(i+1))
+
+        self.drug_stages[drug] = arr
+        return arr
+
 
     def compute_profit(self,drug_qset):
         profit = {}
