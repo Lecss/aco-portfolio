@@ -18,6 +18,5 @@ class HomeCallsTest(TestCase):
 		response = self.client.get(reverse("get_graph"), { "portfolio_id" : 1})
 		self.assertTrue(response.status_code == 200)
 		response = json.loads(response.content)
-
 		self.assertTrue("directed" in response.keys())
 		
