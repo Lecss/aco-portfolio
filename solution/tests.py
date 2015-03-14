@@ -9,8 +9,9 @@ from classes.portfolio import PortfolioCtrl
 from classes.graph_wrapper import GraphWrapper
 from classes.ant import Ant
 from classes.min_max2 import MinMax
+from classes.expected_value import ExpectedValue
 from django.core.urlresolvers import reverse
-
+from classes.portfolio import PortfolioCtrl
 
 class GraphWrapperTest(unittest.TestCase):
     def setUp(self):
@@ -84,7 +85,6 @@ class GraphWrapperTest(unittest.TestCase):
         self.assertTrue(g is not None)
         self.assertTrue("food" in g.nodes())
         self.assertTrue("nest" in g.nodes())
-
 
 class MinMaxTest(unittest.TestCase):
     def setUp(self):
@@ -170,12 +170,11 @@ class MinMaxTest(unittest.TestCase):
                     self.assertEquals(self.mx.get_complete_drugs(path2)['incomplete'], ["C2"])
                     self.assertEquals(self.mx.get_complete_drugs(path4)['incomplete'], ["A1", "A2", "B2"])"""
 
-
 class AntTest(unittest.TestCase):
     def setUp(self):
         port = Portfolio.objects.get(pk=1)
         self.drug_qset = port.drug_set.all()
-        
+
         self.wrapper = GraphWrapper(self.drug_qset)
         self.drugs = self.wrapper.get_drugs()
         self.graph = self.wrapper.get_graph()
@@ -185,7 +184,6 @@ class AntTest(unittest.TestCase):
 
     def test_move_next(self):
         ant = self.ant_new 
-
         self.assertEquals(ant.curr_node, "nest")
         ant.move_next("A1")
         self.assertEquals(ant.curr_node, "A1")
@@ -221,15 +219,34 @@ class AntTest(unittest.TestCase):
                  self.ant.update_capital({"A":self.drugs["A"], "C":self.drugs["C"]}, 20, self.wrapper.profit_year)
                  print self.ant.generated"""
 
+class ExpectedValueTest(unittest.TestCase):
+    def setUp(self):
+        self.port = Portfolio.objects.get(pk=1)
+        self.drug_qset = self.port.drug_set.all()
+        self.wrapper = GraphWrapper(self.drug_qset)
+        self.drugs = self.wrapper.get_drugs()
+
+        #print self.wrapper.get_graph().node["A3"]
+        self.graph = self.wrapper.get_graph()
+
+        self.path = ["A1", "A2", "A3", "C1", "C2"]
+        port_ctrl = PortfolioCtrl(self.port)
+        self.expected_value = ExpectedValue(self.graph, port_ctrl, self.path, [])
+
+    def test_init_years(self):
+        e = self.expected_value
+        #print e.years
+        self.assertTrue(len(e.years.keys()) != 0)
+        self.assertTrue(len(e.years.keys()) == self.port.duration)
 
 
+    def test_get_stage_complement(self):
+        self.assertTrue(self.expected_value.get_stage_complement("A1") == ["A2", "A3"])
 
-
-
-
-
-
-
+    def test_get_fixed_cost(self):
+        self.expected_value.path = ["A1", "A2", "A3"]
+        #print self.expected_value.get_fixed_cost() 
+        self.assertTrue(self.expected_value.get_fixed_cost() == -7000)
 
 
 

@@ -139,7 +139,7 @@ class ExpectedValue():
     def get_fixed_cost(self):
         cost = 0
         for i in self.path:
-            stage_count = self.G.node[i]["drug"]["stages_count"]
+            #stage_count = self.G.node[i]["drug"]["stages_count"]
             cost += -1 * self.G.node[i]["cost"]
 
         return cost
