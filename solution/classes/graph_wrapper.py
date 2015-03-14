@@ -100,6 +100,7 @@ class GraphWrapper():
                                 "name": drug.name,
                                 "profit_per_year" : drug.profit_year,
                                 "total_duration" : sum(x.duration for x in drug.stage_set.all()),
+                                "total_cost" : sum(x.cost for x in drug.stage_set.all()),
                                 "stages_count" : len(drug.stage_set.all()),
                                 "cummulated_prob" : reduce(mul, [x.fail for x in drug.stage_set.all()])
                             })

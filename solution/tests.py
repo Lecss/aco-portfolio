@@ -86,14 +86,15 @@ class GraphWrapperTest(unittest.TestCase):
         self.assertTrue("food" in g.nodes())
         self.assertTrue("nest" in g.nodes())
 
+#min-max 2
 class MinMaxTest(unittest.TestCase):
     def setUp(self):
         port = Portfolio.objects.get(pk=1)
         port_ctrl = PortfolioCtrl(port)
         drug_qset = port.drug_set.all()
         wrapper = GraphWrapper(drug_qset)
+        self.graph = wrapper.get_graph()
         self.mx = MinMax(wrapper, port_ctrl)
-
 
     def test_initialize_ants(self):
         self.assertTrue(len(self.mx.ants)== 0)
@@ -101,18 +102,24 @@ class MinMaxTest(unittest.TestCase):
         self.assertTrue(len(self.mx.ants)== 100)
         #TBC
 
+    def test_get_drug_ratio(self):
+        #set_drugs()
+        drug_A = self.graph.node["A1"]["drug"]
+        ratio = self.mx.get_drug_ratio(drug_A)
 
-    def set_drugs(self):
-    	self.mx.wrapper.drugs =  {"A": {1: {'duration': 2, 'fail': 0.6, 'cost': 1000.0, 'prob': 1},
-				                       2: {'duration': 2, 'fail': 0.6, 'cost': 1000.0, 'prob': 0.6},
-				                       3: {'duration': 4, 'fail': 0.7, 'cost': 5000.0, 'prob': 0.36}},
+        self.assertEquals(ratio, 0.252 * (10000 - 7000) * 1/8)
 
-				                 "B": {1: {'duration': 2, 'fail': 0.2, 'cost': 3000.0, 'prob': 1},
-				                       2: {'duration': 3, 'fail': 0.4, 'cost': 1000.0, 'prob': 0.2},
-				                       3: {'duration': 1, 'fail': 0.5, 'cost': 2000.0, 'prob': 0.08}},
+    def test_next_best_drugs_by_ratio(self):
+        path = ["A1", "A2", "A3"]
+        self.assertTrue(self.mx.next_best_drugs_by_ratio(path), ["D"])
 
-				                 "C": {1: {'duration': 1, 'fail': 0.8, 'cost': 4000.0, 'prob': 1},
-				                       2: {'duration': 5, 'fail': 0.9, 'cost': 5000.0, 'prob': 0.8}}}
+    def test_get_alternatives_for_stage_fail(self):
+        path = ["A1", "A2", "A3"]
+        res = self.mx.get_alternatives_for_stage_fail(path, "A2")
+
+        self.assertTrue(len(res) > 1)
+
+   
 
 
     """def test_drug_expected_value(self):
@@ -249,6 +256,7 @@ class ExpectedValueTest(unittest.TestCase):
         self.assertTrue(self.expected_value.get_fixed_cost() == -7000)
 
 
+#VIEWS
 
 
 

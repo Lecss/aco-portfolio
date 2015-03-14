@@ -68,10 +68,11 @@ class MinMax(ACO):
         cummulated_prob = drug["cummulated_prob"]
         duration = drug["total_duration"]
         profit = drug["profit_per_year"]
+        cost = drug["total_cost"]
 
         
         #print cummulated_prob * 1/duration * profit
-        return cummulated_prob * 1/duration * profit
+        return cummulated_prob * 1/duration * (profit - cost)
 
 
     def terminate_ant(self, ant):
@@ -80,7 +81,6 @@ class MinMax(ACO):
     
             ant.solution.path.pop()
             ant.solution.path.pop(0)
-
             #ant.solution.path = [u'C1', u'L1', u'D1', u'I1', u'H1', u'H2', u'H3', u'G1', u'G2', u'K1', u'K2', u'K3']
             #ant.solution.path = [u'L1', u'L2', u'C1', u'C2', u'H1', u'H2',u'H3']
 
@@ -290,7 +290,7 @@ class MinMax(ACO):
                 tmp =[]
                 tmp += tmp_path
                 tmp += l
-                #alt_paths.append(tmp)
+                alt_paths.append(tmp)
 
         alt_paths.append(tmp_path)
         return alt_paths

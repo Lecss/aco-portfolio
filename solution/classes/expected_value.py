@@ -144,14 +144,14 @@ class ExpectedValue():
 
         return cost
 
-def print_trace(self):
-    generated = [self.years[x]["generated"] for x in self.years]
-    print generated
+    def print_trace(self):
+        generated = [self.years[x]["generated"] for x in self.years]
+        print generated
 
-    for x in self.years:
-        print "\t" + str(x) + ": " + str(self.years[x]["items"]) + ": " + str(
-            self.years[x]["budget"])  # + str(self.years[x]["restricted_items"])
-        print self.years[x]["complete"]
+        for x in self.years:
+            print "\t" + str(x) + ": " + str(self.years[x]["items"]) + ": " + str(
+                self.years[x]["budget"])  # + str(self.years[x]["restricted_items"])
+            print self.years[x]["complete"]
 
 
 

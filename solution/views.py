@@ -49,7 +49,6 @@ def get_solution(request):
 
 	return HttpResponse(json.dumps(context), content_type='application/json')
 
-
 def test():
 	time_start = time.time()
 	for i in range(100):
@@ -101,8 +100,6 @@ def recalculate(request):
 
 	return HttpResponse(json.dumps(context),content_type="application/json")
 
-
-
 def get_algo_session(request, partial_sol=[], failed=[]):
 	portfolio = Portfolio.objects.get(pk =1)
 	#drugs = portfolio.drug_set.filter(name__in="EHICL" )
@@ -111,7 +108,6 @@ def get_algo_session(request, partial_sol=[], failed=[]):
 
 	graph_wrapper = GraphWrapper(drugs)	
 	port_ctrl = PortfolioCtrl(portfolio)
-	#test(drugs,portfolio)
 	algo_session = MinMax(graph_wrapper, port_ctrl, partial_sol, failed)
 
 	return algo_session
