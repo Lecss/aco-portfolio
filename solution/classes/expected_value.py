@@ -3,7 +3,7 @@ from sets import Set
 
 
 class ExpectedValue():
-    min_so_far = 0
+    min_so_far = -10000
     cost_per_drug = {}
     paths_computed = {}
 
@@ -137,42 +137,11 @@ class ExpectedValue():
         return complete_expected + cost
 
     def get_fixed_cost(self):
-        drugs_calculated = []
         cost = 0
-        path = self.path
-
         for i in self.path:
             stage_count = self.G.node[i]["drug"]["stages_count"]
-            cost += self.G.node[i]["cost"] * self.G.node[i]["arrive_here_prob"]
+            cost += -1 * self.G.node[i]["cost"]
 
-
-            # get the fixed cost for every drug
-        """for x in self.path:
-			if x not in drugs_calculated and x is not "food" and x is not "nest":
-				drug = self.G.node[x]["drug"]["name"]
-				complement = self.get_stage_complement(x)
-				drugs_calculated.append(x)
-				drugs_calculated += complement
-
-				if drug in ExpectedValue.cost_per_drug.keys():
-					cost+= ExpectedValue.cost_per_drug[drug]
-				else:
-					stage_count = self.G.node[x]["drug"]["stages_count"]
-					all_stages = [x]
-					all_stages +=complement
-
-					drug_cost = 0
-					for i in all_stages:
-						drug_cost += -1 * (stage_count+ 1 - self.G.node[i]["index"]) * self.G.node[i]["cost"] * self.G.node[i]["arrive_here_prob"]
-					
-					ExpectedValue.cost_per_drug[drug] = drug_cost
-					cost += drug_cost
-
-		diff = Set(drugs_calculated) - self.set_path
-		for i in diff:
-			stage_count = self.G.node[i]["drug"]["stages_count"]
-			cost -= (stage_count+ 1 - self.G.node[i]["index"]) * self.G.node[i]["cost"] * self.G.node[i]["arrive_here_prob"]
-    """
         return cost
 
 def print_trace(self):

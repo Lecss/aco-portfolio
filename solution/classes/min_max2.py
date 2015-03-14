@@ -82,10 +82,17 @@ class MinMax(ACO):
             ant.solution.path.pop(0)
 
             #ant.solution.path = [u'C1', u'L1', u'D1', u'I1', u'H1', u'H2', u'H3', u'G1', u'G2', u'K1', u'K2', u'K3']
-            ant.solution.path = [u'L1', u'L2', u'C1', u'C2',]
+            #ant.solution.path = [u'L1', u'L2', u'C1', u'C2', u'H1', u'H2',u'H3']
+
             solution_value = 0
             for x in ant.solution.path:
                 solution_value += self.path_expected_value2(ant.solution.path,x,[])
+
+
+
+            self.tmp_years = copy.deepcopy(self.expected_value.years)
+            
+            #print solution_value
             #print self.solution_full
             """
             for x in self.solution_full.keys():
@@ -106,7 +113,7 @@ class MinMax(ACO):
             if len(self.best_solution_vector) == 0:
                 self.best_solution_vector.append(ant.solution)
             else:
-                index = 0
+                index = 0 
                 min_value = self.best_solution_vector[index].value
 
                 for best_sol in self.best_solution_vector:
@@ -147,12 +154,8 @@ class MinMax(ACO):
     def path_expected_value2(self, path, failing_now, acummulated=[]):
         index_failing = path.index(failing_now)
 
-
         local_acummulated = list(acummulated)
         local_acummulated.append(failing_now)
-
-        if index_failing == 0:
-            self.tmp_years = copy.deepcopy(self.expected_value.years)
 
         rm = []
         for i in local_acummulated:
@@ -162,23 +165,27 @@ class MinMax(ACO):
 
         for i in rm:
             local_acummulated.remove(i)
-
-        
-        complete_policy_value = 0
-        if complete_policy_value is None:
-            return 0
             
         alts = self.get_alternatives_for_stage_fail(path, failing_now)
-        max_val = -100000
+        max_val = 0
         max_path = []
 
         for sub_path in alts:
             tmp_val = self.expected_value.compute(sub_path, local_acummulated)
+            if len(max_path) == 0 and (tmp_val != None):
+                max_path = sub_path
+                max_val = tmp_val
+
             if tmp_val > max_val:
                 max_val = tmp_val
                 max_path = sub_path
+
         
-        print str(path) + " : " + str(local_acummulated) + " : " + str(max_val)
+        #print str(path) + " : " + str(local_acummulated) + " : " + str(max_val)
+
+        if len(max_path) == 0:
+            return self.expected_value.min_so_far
+
 
         for x in max_path:
             if index_failing < max_path.index(x):
@@ -187,10 +194,9 @@ class MinMax(ACO):
                 if tmp is None: 
                     return 0
                 else:
-                    complete_policy_value += tmp
+                    max_val += tmp
 
-        #print local_acummulated
-        return complete_policy_value + max_val
+        return max_val
 
     def path_expected_value(self, path, faileds=Set(), prev_used=Set(),level=0):
         complete_policy_value = self.expected_value.compute(path, list(faileds))
@@ -231,7 +237,7 @@ class MinMax(ACO):
             list_alt = self.get_alternatives_for_stage_fail(path, x)
 
             best_tmp_path = []
-            max_val = -1000000
+            max_val = 0
 
             for alt in list_alt:
                 val = self.expected_value.compute(alt, fail)
@@ -259,7 +265,7 @@ class MinMax(ACO):
             if stage in path:
                 continue
             else:
-                if (len(arr) < 2):
+                if (len(arr) < 1):
                     arr.append(drug_name)
         return arr
 
@@ -285,7 +291,7 @@ class MinMax(ACO):
                 tmp += tmp_path
                 tmp += l
                 #alt_paths.append(tmp)
-       
+
         alt_paths.append(tmp_path)
         return alt_paths
 

@@ -86,7 +86,6 @@ class GraphWrapperTest(unittest.TestCase):
         self.assertTrue("nest" in g.nodes())
 
 
-
 class MinMaxTest(unittest.TestCase):
     def setUp(self):
         port = Portfolio.objects.get(pk=1)
@@ -176,12 +175,42 @@ class AntTest(unittest.TestCase):
     def setUp(self):
         port = Portfolio.objects.get(pk=1)
         self.drug_qset = port.drug_set.all()
+        
         self.wrapper = GraphWrapper(self.drug_qset)
         self.drugs = self.wrapper.get_drugs()
         self.graph = self.wrapper.get_graph()
         
-        self.ant = Ant(self.wrapper)
+        self.ant_new = Ant(self.wrapper, port, [], [])
+        self.ant_partial = Ant(self.wrapper, port, ["A1", "A2"], [])
 
+    def test_move_next(self):
+        ant = self.ant_new 
+
+        self.assertEquals(ant.curr_node, "nest")
+        ant.move_next("A1")
+        self.assertEquals(ant.curr_node, "A1")
+        self.assertTrue("A1" in ant.solution.path)
+
+    def test_update_curr_node(self):
+        ant = self.ant_new
+
+        self.assertEquals(ant.curr_node, "nest")
+        ant.update_curr_node("A1")
+        self.assertTrue("nest" in ant.unavailable)
+        self.assertTrue(ant.curr_node == "A1")
+
+    def test_enable_next_node(self):
+        ant = self.ant_new
+
+        self.assertTrue("A2" in ant.not_active)
+        ant.enable_next_node("A1")
+        #print ant.not_active
+        self.assertTrue("A2" not in ant.not_active)
+
+    def test_update_partial_solution(self): 
+        ant = self.ant_partial
+        self.assertTrue(len(ant.solution.path) == 3)
+        self.assertTrue("A2" in ant.solution.path)
 
     """ def test_update_capital(self):
                  self.ant.solution.path = ['nest', u'C2', u'C1', u'A3', u'A2', 'food']
