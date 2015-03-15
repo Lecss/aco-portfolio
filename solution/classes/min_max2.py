@@ -63,7 +63,6 @@ class MinMax(ACO):
     
         return sorted_best
 
-
     def get_drug_ratio(self, drug):
         cummulated_prob = drug["cummulated_prob"]
         duration = drug["total_duration"]
@@ -74,41 +73,30 @@ class MinMax(ACO):
         #print cummulated_prob * 1/duration * profit
         return cummulated_prob * 1/duration * (profit - cost)
 
-
     def terminate_ant(self, ant):
         #entering upon food being the ant's current node 
         if len(ant.solution.path) > 2:
     
             ant.solution.path.pop()
             ant.solution.path.pop(0)
-            #ant.solution.path = [u'C1', u'L1', u'D1', u'I1', u'H1', u'H2', u'H3', u'G1', u'G2', u'K1', u'K2', u'K3']
-            #ant.solution.path = [u'L1', u'L2', u'C1', u'C2', u'H1', u'H2',u'H3']
 
             solution_value = 0
             for x in ant.solution.path:
                 solution_value += self.path_expected_value2(ant.solution.path,x,[])
 
-
-
             self.tmp_years = copy.deepcopy(self.expected_value.years)
-            
-            #print solution_value
-            #print self.solution_full
-            """
-            for x in self.solution_full.keys():
-                print str(x) + " :: " + str(self.solution_full[x])"""
+
             years = self.tmp_years
-            new_path = []
 
-            for i in years:
-                years[i]["items"].sort()
-                new_path += years[i]["items"]
 
-            ant.solution.path = new_path
+            ant.solution.path = ant.solution.path
             ant.solution.value = solution_value
             ant.time = time.time() - self.start_time
             ant.solution.years = json.loads(json.dumps(years))
             ant.solution.budget_over_years = [years[x]["budget"] for x in years]
+
+            ant.solution.full_vector = copy.deepcopy(self.solution_full)
+            self.solution_full = {}
             #init and maintain the solutions vector
             if len(self.best_solution_vector) == 0:
                 self.best_solution_vector.append(ant.solution)
@@ -183,6 +171,8 @@ class MinMax(ACO):
         
         #print str(path) + " : " + str(local_acummulated) + " : " + str(max_val)
 
+        self.solution_full[str(list(local_acummulated))] = list(max_path)
+
         if len(max_path) == 0:
             return self.expected_value.min_so_far
 
@@ -198,63 +188,6 @@ class MinMax(ACO):
 
         return max_val
 
-    def path_expected_value(self, path, faileds=Set(), prev_used=Set(),level=0):
-        complete_policy_value = self.expected_value.compute(path, list(faileds))
-
-        print path
-        print level
-        print faileds
-        print prev_used
-        print "----------"
-        if level == 0:
-            self.tmp_years = copy.deepcopy(self.expected_value.years)
-
-        # if initial path expected value is not feasible not worth calculating all the other posibilities
-        # as we do not wish a negative investment in the first place
-        if level == 0 and complete_policy_value < 0:
-            return complete_policy_value
-
-        fail = Set(faileds)
-        considered = Set(prev_used)
-
-        self.solution_full[str(list(fail))] = path
-
-        for x in path:
-            if x in considered:
-                continue
-
-            tmp_fail_remove= []
-            for f in fail: 
-                if self.G.node[f]["drug"]["name"] == self.G.node[x]["drug"]["name"] and self.G.node[f]["index"] < self.G.node[x]["index"]:
-                    tmp_fail_remove.append(f)
-
-            for f in tmp_fail_remove:
-                considered.add(f)
-                fail.remove(f)
-
-            fail.add(x)
-
-            list_alt = self.get_alternatives_for_stage_fail(path, x)
-
-            best_tmp_path = []
-            max_val = 0
-
-            for alt in list_alt:
-                val = self.expected_value.compute(alt, fail)
-
-                if val != None and val > max_val:
-                    max_val = val
-                    best_tmp_path = alt
-
-            diff = Set(best_tmp_path) - Set(path)
-
-            if len(Set(best_tmp_path) - Set(path)) == 0 or len(best_tmp_path) == 0:
-                complete_policy_value += max_val
-            else:
-                complete_policy_value + self.path_expected_value(best_tmp_path, fail,considered, level+1)
-
-        #print
-        return complete_policy_value
 
     def next_best_drugs_by_ratio(self, path):
         arr =[]

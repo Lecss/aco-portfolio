@@ -15,8 +15,8 @@ import logging
 import time
 
 global_x = {}
-ant_no = 110
-iters = 30
+ant_no =10
+iters = 5
 # Create your views here.
 def get_solution(request):
 
@@ -42,6 +42,7 @@ def get_solution(request):
 		entry["running_time"] = sol.ant.time
 		entry["graph"] = json.loads(algo_session.wrapper.get_serialized_graph())
 		entry["budget_over_year"] = sol.budget_over_years
+		entry["full_vector"] = sol.full_vector
 
 		context['data'][c]=(entry)
 		c+=1
@@ -129,7 +130,6 @@ def results_confidence(drugs, portfolio):
 	else:
 		global_x[str(best)] = global_x[str(best)] + 1
 
-	#print "exit" + str(i)
 
 def get_graph(request):
 	 

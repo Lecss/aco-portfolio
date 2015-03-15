@@ -253,6 +253,7 @@
 
 			$scope.show = -1
 
+			$scope.failed = []
 
 			$http.get('/portfolio/').
 				  success(function(data, status, headers, config) {
@@ -330,14 +331,27 @@
 					}
 				})
 
-				console.log(failed)
+				//console.log($scope.selected_solution["recalculated"])
+
+				
+				failed_path = "["
+
+				angular.forEach($scope.selected_solution["recalculated"], function(val,key){
+					//console.log(val)
+					failed_at = val["failed_index"]
+					path = val["path"]
+					stage_failed = path[failed_at]
 
 
-				$http.get('/solution/recalculate', {params:{failed:JSON.stringify(failed), path: JSON.stringify($scope.selected_solution["recalculated"][parent_index].path) }})
-				.success(function(data){
-					$scope.selected_solution["recalculated"][parent_index + 1] = data.data[0]
+					failed_path += "u'"+ stage_failed + "', "
+ 				})
+				failed_path = failed_path.substring(0, failed_path.length -2)
+				failed_path += "]"
 
-				})
+				$scope.selected_solution["recalculated"][parent_index + 1] = {}
+				new_path = $scope.selected_solution.full_vector[failed_path]
+
+				$scope.selected_solution["recalculated"][parent_index + 1]["path"] = new_path
 			}
 
 			$scope.select_solution = function(i){
