@@ -75,7 +75,7 @@
     		font-size:12px;
 		}
 
-		.drug:hover .edit { opacity: 1;}
+		.drug:hover .edit { opacity: 0;}
 
 		.edit:hover { color:white;}
 		
@@ -211,7 +211,7 @@
 					</div>
 					<h2 class="widget_title">WHAT IF SCENARIO </h2>
 					<div ng-show="show == -1">No solution data. Submit to calculate!</div>
-
+                    <div>{[ new_value ]}</div>
 					<svg width="100%" height="100%" ng-show="show == 0">
 						<g  ng-repeat="(k,new_best_sol) in selected_solution.recalculated">
 						  <g ng-repeat="stage in new_best_sol.path" transform="translate({[$index * 39]}, {[$parent.$index * 50]})" ng-hide="k > 1 && $index < selected_solution.recalculated[k-1].failed_index">
@@ -252,8 +252,8 @@
 			$selected_solution = {}
 
 			$scope.show = -1
-
 			$scope.failed = []
+            $scope.new_value = 0
 
 			$http.get('/portfolio/').
 				  success(function(data, status, headers, config) {
@@ -351,7 +351,9 @@
 				$scope.selected_solution["recalculated"][parent_index + 1] = {}
 				new_path = $scope.selected_solution.full_vector[failed_path]
 
-				$scope.selected_solution["recalculated"][parent_index + 1]["path"] = new_path
+                $scope.new_value = new_path["value"]
+                window.xx = $scope.selected_solution.full_vector
+				$scope.selected_solution["recalculated"][parent_index + 1]["path"] = new_path["path"]
 			}
 
 			$scope.select_solution = function(i){

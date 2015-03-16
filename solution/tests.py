@@ -118,10 +118,27 @@ class MinMaxTest(unittest.TestCase):
         res = self.mx.get_alternatives_for_stage_fail(path, "A2")
 
         self.assertTrue(len(res) > 1)
+    
+    def test_expected_value_not_complete(self):
+        e1 = self.mx.expected_value.compute([u'A1', u'A2', u'B2', u'B1', u'A3', u'B3'])
+        e2 = self.mx.expected_value.compute([u'A1', u'A2', u'B2', u'B1', u'A3'])
 
-   
+        self.assertTrue(e1 > e2)
 
+    def test_expected_value_extra(self):
+        path = ["A1", "A2", "C1", "C2"]
+        extra_path = path + ["D1","D2","D3"]
 
+        e1 = self.mx.expected_value.compute(path)
+        e2 = self.mx.expected_value.compute(extra_path)
+
+        self.assertTrue( e1 < e2)
+
+    def test_expected_value_none(self):
+        e1 = self.mx.expected_value.compute([])
+        self.assertTrue(e1 == 0)
+
+        
     """def test_drug_expected_value(self):
                     self.set_drugs()
                        drugs = self.mx.wrapper.get_drugs()
@@ -254,7 +271,6 @@ class ExpectedValueTest(unittest.TestCase):
         self.expected_value.path = ["A1", "A2", "A3"]
         #print self.expected_value.get_fixed_cost() 
         self.assertTrue(self.expected_value.get_fixed_cost() == -7000)
-
 
 #VIEWS
 

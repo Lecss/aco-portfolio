@@ -24,10 +24,10 @@ class MinMax(ACO):
         self.expected_value = ExpectedValue(self.G, portfolio, partial_sol, failed)
         self.pheromones = {}
 
+        self.calculated_solutions =[]
         self.initialize_pheromones()
         self.best_solution_vector = []
         self.best_drugs_by_ratio = self.get_best_drugs()
-        self.iter_no = 0
         self.tmp_years = {}
         self.portfolio = portfolio
         self.start_time = time.time()
@@ -72,6 +72,30 @@ class MinMax(ACO):
         
         #print cummulated_prob * 1/duration * profit
         return cummulated_prob * 1/duration * (profit - cost)
+        
+    def switch_path(self,ant):
+        drug = self.next_best_drugs_by_ratio(ant.solution.path)
+        initial_stage = drug[0] + "1"
+        complement = self.expected_value.get_stage_complement(initial_stage)
+
+        new_path = list(ant.solution.path)
+        new_path += [initial_stage] + complement
+        new_path_prepend =  [initial_stage] + complement + list(ant.solution.path)
+
+        e1 = self.expected_value.compute(new_path)
+        e2 = self.expected_value.compute(ant.solution.path)
+        e3 = self.expected_value.compute(new_path_prepend)
+
+        l = [e1,e2,e3]
+        max_val = max(l)
+
+        index = l.index(max_val)
+
+        if index == 0:
+            ant.solution.path = new_path
+        elif index == 2: 
+            ant.solution.path = new_path_prepend
+
 
     def terminate_ant(self, ant):
         #entering upon food being the ant's current node 
@@ -79,43 +103,47 @@ class MinMax(ACO):
     
             ant.solution.path.pop()
             ant.solution.path.pop(0)
-
             solution_value = 0
-            for x in ant.solution.path:
-                solution_value += self.path_expected_value2(ant.solution.path,x,[])
+            self.switch_path(ant)
+            years = None
+            #memoization
+            if str(ant.solution.path) not in self.calculated_solutions:
+                for x in ant.solution.path:
+                    solution_value += self.path_expected_value2(ant.solution.path,x,[])
 
-            self.tmp_years = copy.deepcopy(self.expected_value.years)
+                self.tmp_years = copy.deepcopy(self.expected_value.years)
+                years = self.tmp_years
 
-            years = self.tmp_years
+                self.calculated_solutions.append(str(ant.solution.path))
 
 
-            ant.solution.path = ant.solution.path
-            ant.solution.value = solution_value
-            ant.time = time.time() - self.start_time
-            ant.solution.years = json.loads(json.dumps(years))
-            ant.solution.budget_over_years = [years[x]["budget"] for x in years]
+                ant.solution.path = ant.solution.path
+                ant.solution.value = solution_value / len(self.solution_full)
+                ant.time = time.time() - self.start_time
+                ant.solution.years = json.loads(json.dumps(years))
+                ant.solution.budget_over_years = [years[x]["budget"] for x in years]
 
-            ant.solution.full_vector = copy.deepcopy(self.solution_full)
-            self.solution_full = {}
-            #init and maintain the solutions vector
-            if len(self.best_solution_vector) == 0:
-                self.best_solution_vector.append(ant.solution)
-            else:
-                index = 0 
-                min_value = self.best_solution_vector[index].value
-
-                for best_sol in self.best_solution_vector:
-                    if best_sol.value < min_value:
-                        min_value = best_sol.value
-                        index = self.best_solution_vector.index(best_sol)
-
-                if solution_value > min_value:
-                    if len(self.best_solution_vector) > 2:
-                        self.best_solution_vector.pop(index)
-                    #print ant.solution.path
-                    #print ant.solution.value
-                    #print "============"
+                ant.solution.full_vector = copy.deepcopy(self.solution_full)
+                self.solution_full = {}
+                #init and maintain the solutions vector
+                if len(self.best_solution_vector) == 0:
                     self.best_solution_vector.append(ant.solution)
+                else:
+                    index = 0 
+                    min_value = self.best_solution_vector[index].value
+
+                    for best_sol in self.best_solution_vector:
+                        if best_sol.value < min_value:
+                            min_value = best_sol.value
+                            index = self.best_solution_vector.index(best_sol)
+
+                    if solution_value > min_value:
+                        if len(self.best_solution_vector) > 2:
+                            self.best_solution_vector.pop(index)
+                        #print ant.solution.path
+                        #print ant.solution.value
+                        #print "============"
+                        self.best_solution_vector.append(ant.solution)
 
         self.ants.remove(ant)
         self.initialize_ants(1)
@@ -124,12 +152,14 @@ class MinMax(ACO):
         self.initialize_ants(ants_no)
 
         for x in range(0, iter_no):
-            self.iter_no += 1
             for ant in self.ants:
                 self.build_ant_solution(ant)
                 self.update_local_pheromones(ant)
             self.daemon()
             self.update_pheromones()
+
+        print "LEN"
+        print len(self.calculated_solutions)
         return self.G
 
     def build_ant_solution(self, ant):
@@ -171,7 +201,7 @@ class MinMax(ACO):
         
         #print str(path) + " : " + str(local_acummulated) + " : " + str(max_val)
 
-        self.solution_full[str(list(local_acummulated))] = list(max_path)
+        self.solution_full[str(list(local_acummulated))] = { "path": list(max_path), "value": max_val}
 
         if len(max_path) == 0:
             return self.expected_value.min_so_far
@@ -240,8 +270,6 @@ class MinMax(ACO):
                 path = sol.path
                 best_value = sol.value
 
-        #print self.best_solution_vector
-        #print path
         for node in self.G.nodes():
             #evaporate
             ph = max((1-ACO.p) * self.G.node[node]["ph"], 1)
@@ -302,10 +330,7 @@ class MinMax(ACO):
         return self.portfolio.model.duration - (drug_total_duration + invested_in)
 
     def roulette_select(self, population, fitnesses, num):
-        """ Roulette selection, implemented according to:
-            <http://stackoverflow.com/questions/177271/roulette
-            -selection-in-genetic-algorithms/177278#177278>
-            http://stackoverflow.com/questions/298301/roulette-wheel-selection-algorithm"""
+        """ Roulette selection """
 
         total_fitness = float(sum(fitnesses))
         rel_fitness = [f / total_fitness for f in fitnesses]
