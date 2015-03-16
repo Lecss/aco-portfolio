@@ -104,7 +104,7 @@ class MinMax(ACO):
             ant.solution.path.pop()
             ant.solution.path.pop(0)
             solution_value = 0
-            self.switch_path(ant)
+            #self.switch_path(ant)
             years = None
             #memoization
             if str(ant.solution.path) not in self.calculated_solutions:
